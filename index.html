@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TurboRx - Portfolio</title>
+  <meta name="description" content="Personal portfolio and projects of TurboRx" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="vercel-bg"></div>
+
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <span>TurboRx</span>
+      </div>
+      
+      <div class="nav-right">
+        <ul class="nav-links" id="nav-links">
+          <li><a href="#about">About</a></li>
+          <li><a href="#stats">Stats</a></li>
+          <li><a href="#projects">Projects</a></li>
+        </ul>
+
+        <div class="theme-switcher">
+          <button id="theme-toggle-btn" class="theme-toggle" title="Change Theme">
+            <svg id="theme-icon-active" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg>
+          </button>
+          <div class="theme-dropdown" id="theme-dropdown">
+            <button class="theme-option" data-theme-val="light">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+              Light
+            </button>
+            <button class="theme-option" data-theme-val="dark">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+              Dark
+            </button>
+            <button class="theme-option" data-theme-val="system">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              System
+            </button>
+          </div>
+        </div>
+
+        <div class="hamburger" id="hamburger">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#about">About</a>
+    <a href="#stats">Stats</a>
+    <a href="#projects">Projects</a>
+  </div>
+
+  <main>
+    <section id="hero" class="hero section">
+      <div class="hero-content">
+        <div class="avatar-container loading" id="avatar-container">
+          <img id="profile-avatar" src="" alt="TurboRx Avatar" />
+        </div>
+        <h1 id="profile-name">TurboRx</h1>
+        <p id="profile-bio" class="subtitle">Fetching profile data...</p>
+        
+        <div class="hero-actions">
+          <a href="#projects" class="btn btn-primary">Deployments & Projects</a>
+          <a id="github-link" href="https://github.com/TurboRx" target="_blank" class="btn btn-secondary">
+            <svg height="20" viewBox="0 0 16 16" width="20" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+            GitHub
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="stats" class="stats-section section">
+      <div class="section-header">
+        <h2>GitHub Analytics</h2>
+        <p>A summary of my open source contributions.</p>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <h3>Total Stars</h3>
+          <p class="metric-value" id="metric-stars">-</p>
+        </div>
+        <div class="metric-card">
+          <h3>Public Repos</h3>
+          <p class="metric-value" id="metric-repos">-</p>
+        </div>
+        <div class="metric-card">
+          <h3>Followers</h3>
+          <p class="metric-value" id="metric-followers">-</p>
+        </div>
+        <div class="metric-card">
+          <h3>Total Forks</h3>
+          <p class="metric-value" id="metric-forks">-</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" class="projects section">
+      <div class="section-header">
+        <h2>Repositories</h2>
+      </div>
+      <div class="repos-grid" id="repos-grid">
+        <div class="loading-spinner">Fetching repositories...</div>
+      </div>
+      <div class="show-more-container" id="show-more-container" style="display: none; text-align: center; margin-top: 2.5rem;">
+        <button id="show-more-btn" class="btn btn-secondary">Show More</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="current-year"></span> TurboRx. Built with Vanilla JS & CSS.</p>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
