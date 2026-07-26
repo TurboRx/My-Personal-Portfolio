@@ -48,6 +48,11 @@
           <kbd class="cmd-k-kbd">Ctrl K</kbd>
         </button>
 
+        <button id="terminal-trigger" class="cmd-k-btn" title="Open Interactive Terminal" aria-label="Open Interactive Terminal">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+          <span class="cmd-k-text">CLI</span>
+        </button>
+
         <div class="theme-switcher">
           <button id="theme-toggle-btn" class="theme-toggle" title="Change Theme" aria-label="Toggle color theme" aria-haspopup="true" aria-expanded="false">
             <svg id="theme-icon-active" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg>
@@ -227,6 +232,32 @@
       <div class="cmd-palette-results" id="cmd-palette-results"></div>
       <div class="cmd-palette-footer">
         <span>Use <kbd>↑</kbd> <kbd>↓</kbd> to navigate, <kbd>↵</kbd> to select</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Terminal Modal -->
+  <div class="terminal-modal" id="terminal-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Interactive Terminal">
+    <div class="terminal-backdrop" id="terminal-backdrop"></div>
+    <div class="terminal-box">
+      <div class="terminal-bar">
+        <div class="terminal-dots">
+          <span class="dot red" id="terminal-close-btn" title="Close Terminal"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <div class="terminal-title">turborx@portfolio:~</div>
+      </div>
+      <div class="terminal-body" id="terminal-body">
+        <div class="terminal-welcome">
+          Welcome to TurboRx Terminal v1.0.0<br/>
+          Type <span class="term-highlight">'help'</span> for a list of available commands.
+        </div>
+        <div id="terminal-output"></div>
+        <div class="terminal-input-line">
+          <span class="term-prompt">turborx@portfolio:~$</span>
+          <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" aria-label="Terminal command input" />
+        </div>
       </div>
     </div>
   </div>

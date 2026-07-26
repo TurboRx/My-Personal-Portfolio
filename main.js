@@ -572,6 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { title: 'Scroll to Skills', desc: 'View tech stack', action: () => document.getElementById('skills')?.scrollIntoView({ behavior: 'smooth' }) },
     { title: 'Scroll to Stats', desc: 'View GitHub metrics', action: () => document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' }) },
     { title: 'Scroll to Repositories', desc: 'View repository grid', action: () => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }) },
+    { title: 'Open Interactive CLI Terminal', desc: 'Launch terminal emulator mode', action: () => openTerminal() },
     { title: 'Switch to Light Theme', desc: 'Set light mode', action: () => { applyTheme('light'); try { localStorage.setItem('theme', 'light'); } catch(e){} } },
     { title: 'Switch to Dark Theme', desc: 'Set dark mode', action: () => { applyTheme('dark'); try { localStorage.setItem('theme', 'dark'); } catch(e){} } },
     { title: 'Copy GitHub Profile URL', desc: 'Copy link to clipboard', action: () => { navigator.clipboard.writeText(`https://github.com/${username}`); showToast('Copied GitHub profile URL!'); } },
@@ -682,6 +683,147 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- Interactive CLI Terminal Logic ---
+  const terminalModal = document.getElementById('terminal-modal');
+  const terminalTrigger = document.getElementById('terminal-trigger');
+  const terminalCloseBtn = document.getElementById('terminal-close-btn');
+  const terminalBackdrop = document.getElementById('terminal-backdrop');
+  const terminalInput = document.getElementById('terminal-input');
+  const terminalOutput = document.getElementById('terminal-output');
+  const terminalBody = document.getElementById('terminal-body');
+
+  const openTerminal = () => {
+    if (!terminalModal) return;
+    terminalModal.classList.add('show');
+    terminalModal.setAttribute('aria-hidden', 'false');
+    if (terminalInput) {
+      terminalInput.value = '';
+      terminalInput.focus();
+    }
+  };
+
+  const closeTerminal = () => {
+    if (!terminalModal) return;
+    terminalModal.classList.remove('show');
+    terminalModal.setAttribute('aria-hidden', 'true');
+  };
+
+  if (terminalTrigger) terminalTrigger.addEventListener('click', openTerminal);
+  if (terminalCloseBtn) terminalCloseBtn.addEventListener('click', closeTerminal);
+  if (terminalBackdrop) terminalBackdrop.addEventListener('click', closeTerminal);
+
+  const printTermOutput = (cmdText, resultHTML, isError = false) => {
+    if (!terminalOutput) return;
+    const entry = document.createElement('div');
+    entry.style.marginBottom = '0.75rem';
+    entry.innerHTML = `
+      <div><span class="term-prompt">turborx@portfolio:~$</span> <span class="term-cmd">${escapeHTML(cmdText)}</span></div>
+      <div class="${isError ? 'term-error' : 'term-out'}">${resultHTML}</div>
+    `;
+    terminalOutput.appendChild(entry);
+    if (terminalBody) terminalBody.scrollTop = terminalBody.scrollHeight;
+  };
+
+  const handleTerminalCommand = (rawInput) => {
+    const input = rawInput.trim();
+    if (!input) return;
+    const parts = input.split(' ');
+    const cmd = parts[0].toLowerCase();
+    const args = parts.slice(1);
+
+    if (cmd === 'clear') {
+      if (terminalOutput) terminalOutput.innerHTML = '';
+      return;
+    }
+
+    if (cmd === 'exit' || cmd === 'quit') {
+      closeTerminal();
+      return;
+    }
+
+    if (cmd === 'help') {
+      printTermOutput(input, `
+Available Commands:
+  <span class="term-highlight">help</span>       - Show this command help list
+  <span class="term-highlight">about</span>      - Print developer intro & bio
+  <span class="term-highlight">skills</span>     - View tech stack & frameworks
+  <span class="term-highlight">stats</span>      - View GitHub analytics metrics
+  <span class="term-highlight">repos</span>      - List public GitHub repositories
+  <span class="term-highlight">theme</span>      - Switch theme (usage: theme light | dark | system)
+  <span class="term-highlight">clear</span>      - Clear terminal screen
+  <span class="term-highlight">exit</span>       - Close terminal window
+      `);
+      return;
+    }
+
+    if (cmd === 'about' || cmd === 'bio') {
+      printTermOutput(input, `
+TurboRx - Full Stack Developer
+Hello 👋 I'm TurboRx, a passionate developer who loves exploring new technologies and building innovative projects.
+GitHub: https://github.com/TurboRx
+      `);
+      return;
+    }
+
+    if (cmd === 'skills') {
+      printTermOutput(input, `
+Tech Stack & Tools:
+ • JavaScript (ES6+)   • TypeScript
+ • HTML5 / CSS3        • React / Next.js
+ • Node.js             • Python
+ • Git & GitHub        • REST APIs
+      `);
+      return;
+    }
+
+    if (cmd === 'stats') {
+      const stars = document.getElementById('metric-stars')?.textContent || '0';
+      const repos = document.getElementById('metric-repos')?.textContent || '0';
+      const followers = document.getElementById('metric-followers')?.textContent || '0';
+      const forks = document.getElementById('metric-forks')?.textContent || '0';
+      printTermOutput(input, `
+GitHub Analytics:
+ Total Stars: ${stars}  | Public Repos: ${repos}
+ Followers: ${followers}  | Total Forks: ${forks}
+      `);
+      return;
+    }
+
+    if (cmd === 'repos' || cmd === 'projects') {
+      if (allRepos.length === 0) {
+        printTermOutput(input, 'No repositories loaded or fetching in progress...');
+        return;
+      }
+      const repoList = allRepos.slice(0, 10).map(r => ` • <span class="term-highlight">${escapeHTML(r.name)}</span> (${r.language || 'Unknown'}) - ${escapeHTML(r.description || 'No description')}`).join('\n');
+      printTermOutput(input, `Showing top repositories:\n${repoList}`);
+      return;
+    }
+
+    if (cmd === 'theme') {
+      const mode = args[0]?.toLowerCase();
+      if (['light', 'dark', 'system'].includes(mode)) {
+        applyTheme(mode);
+        try { localStorage.setItem('theme', mode); } catch (e) {}
+        printTermOutput(input, `<span class="term-success">Theme changed to ${mode} mode.</span>`);
+      } else {
+        printTermOutput(input, `Usage: theme [light | dark | system]`, true);
+      }
+      return;
+    }
+
+    printTermOutput(input, `Command not found: '${escapeHTML(cmd)}'. Type <span class="term-highlight">'help'</span> for available commands.`, true);
+  };
+
+  if (terminalInput) {
+    terminalInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = terminalInput.value;
+        terminalInput.value = '';
+        handleTerminalCommand(val);
+      }
+    });
+  }
+
   window.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
@@ -690,8 +832,12 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         openCmdPalette();
       }
+    } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 't') {
+      e.preventDefault();
+      openTerminal();
     } else if (e.key === 'Escape') {
       closeCmdPalette();
+      closeTerminal();
     }
   });
 });
