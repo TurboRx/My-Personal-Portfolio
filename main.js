@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const bioElement = document.getElementById('profile-bio');
     if (bioElement) {
-      bioElement.textContent = data.bio || "Building modern, minimal, and fast web experiences.";
+      bioElement.textContent = data.bio || "I'm TurboRx, a passionate developer who loves exploring new technologies and building innovative projects.";
     }
 
     if (data.name) {
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(error => {
         console.error('Error fetching profile:', error);
         const bioElement = document.getElementById('profile-bio');
-        if (bioElement) bioElement.textContent = "Full-stack developer building open-source projects.";
+        if (bioElement) bioElement.textContent = "I'm TurboRx, a passionate developer who loves exploring new technologies and building innovative projects.";
       });
   }
 
