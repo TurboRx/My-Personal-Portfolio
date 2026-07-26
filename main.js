@@ -242,6 +242,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const nameEl = document.getElementById('profile-name');
       if (nameEl) nameEl.textContent = data.name;
     }
+
+    if (data.html_url) {
+      const githubLink = document.getElementById('github-link');
+      if (githubLink) githubLink.href = data.html_url;
+    }
     
     const reposEl = document.getElementById('metric-repos');
     const followersEl = document.getElementById('metric-followers');
@@ -567,8 +572,8 @@ document.addEventListener('DOMContentLoaded', () => {
     { title: 'Scroll to Skills', desc: 'View tech stack', action: () => document.getElementById('skills')?.scrollIntoView({ behavior: 'smooth' }) },
     { title: 'Scroll to Stats', desc: 'View GitHub metrics', action: () => document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' }) },
     { title: 'Scroll to Repositories', desc: 'View repository grid', action: () => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }) },
-    { title: 'Switch to Light Theme', desc: 'Set light mode', action: () => { applyTheme('light'); localStorage.setItem('theme', 'light'); } },
-    { title: 'Switch to Dark Theme', desc: 'Set dark mode', action: () => { applyTheme('dark'); localStorage.setItem('theme', 'dark'); } },
+    { title: 'Switch to Light Theme', desc: 'Set light mode', action: () => { applyTheme('light'); try { localStorage.setItem('theme', 'light'); } catch(e){} } },
+    { title: 'Switch to Dark Theme', desc: 'Set dark mode', action: () => { applyTheme('dark'); try { localStorage.setItem('theme', 'dark'); } catch(e){} } },
     { title: 'Copy GitHub Profile URL', desc: 'Copy link to clipboard', action: () => { navigator.clipboard.writeText(`https://github.com/${username}`); showToast('Copied GitHub profile URL!'); } },
   ];
 
