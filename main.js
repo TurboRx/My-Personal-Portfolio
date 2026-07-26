@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const username = 'TurboRx';
-  const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes cache TTL
+  const CACHE_TTL_MS = 10 * 60 * 1000;
 
   // Set Current Year
   const yearEl = document.getElementById('current-year');
@@ -15,6 +15,44 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  };
+
+  // Helper: Relative Time Formatter
+  const formatRelativeTime = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) return 'Updated just now';
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) return `Updated ${diffInMinutes}m ago`;
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `Updated ${diffInHours}h ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 30) return `Updated ${diffInDays}d ago`;
+    const diffInMonths = Math.floor(diffInDays / 30);
+    if (diffInMonths < 12) return `Updated ${diffInMonths}mo ago`;
+    return `Updated ${Math.floor(diffInMonths / 12)}y ago`;
+  };
+
+  // Helper: Toast Notifications System
+  const showToast = (message) => {
+    const toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) return;
+    const toast = document.createElement('div');
+    toast.className = 'toast-item';
+    toast.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <span>${escapeHTML(message)}</span>
+    `;
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      toast.style.transition = 'all 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
   };
 
   // Helper: localStorage Cache
@@ -139,19 +177,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Close menus on Escape key
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (themeDropdown && themeDropdown.classList.contains('show')) {
-        themeDropdown.classList.remove('show');
-        if (themeToggleBtn) themeToggleBtn.setAttribute('aria-expanded', 'false');
+  // --- Back to Top Button ---
+  const backToTopBtn = document.getElementById('back-to-top-btn');
+  if (backToTopBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        backToTopBtn.classList.add('visible');
+      } else {
+        backToTopBtn.classList.remove('visible');
       }
-      if (mobileMenu && mobileMenu.classList.contains('active')) {
-        mobileMenu.classList.remove('active');
-        if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
-      }
-    }
-  });
+    });
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 
   // --- Scroll Animations (IntersectionObserver) ---
   const observerOptions = { threshold: 0.1 };
@@ -165,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-  // --- Fetch GitHub User Data ---
+  // --- Fetch GitHub User Profile Data ---
   const cachedUser = getCachedData('user_profile');
 
   const updateUserUI = (data) => {
@@ -185,7 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (nameEl) nameEl.textContent = data.name;
     }
     
-    // Animate basic user metrics
     const reposEl = document.getElementById('metric-repos');
     const followersEl = document.getElementById('metric-followers');
     if (reposEl) animateCount(reposEl, data.public_repos || 0);
@@ -211,13 +249,14 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  // --- Repositories State & Fetch ---
+  // --- Repositories State, Sorting & Filtering ---
   let allRepos = [];
   let filteredRepos = [];
   let visibleCount = 8;
 
   const searchInput = document.getElementById('search-input');
   const languageSelect = document.getElementById('language-select');
+  const sortSelect = document.getElementById('sort-select');
   const reposGrid = document.getElementById('repos-grid');
   const showMoreContainer = document.getElementById('show-more-container');
   const showMoreBtn = document.getElementById('show-more-btn');
@@ -225,7 +264,58 @@ document.addEventListener('DOMContentLoaded', () => {
   const langColors = {
     JavaScript: '#f1e05a', TypeScript: '#3178c6', HTML: '#e34c26', CSS: '#563d7c',
     Python: '#3572A5', Vue: '#41b883', Rust: '#dea584', Go: '#00ADD8', C: '#555555',
-    'C++': '#f34b7d', Java: '#b07219', PHP: '#4F5D95', default: '#333333'
+    'C++': '#f34b7d', Java: '#b07219', PHP: '#4F5D95', default: '#858585'
+  };
+
+  // --- Render Language Distribution Bar ---
+  const renderLanguageDistribution = (repos) => {
+    const container = document.getElementById('language-distribution');
+    const bar = document.getElementById('lang-dist-bar');
+    const legend = document.getElementById('lang-dist-legend');
+    if (!container || !bar || !legend) return;
+
+    const langCounts = {};
+    let totalLangRepos = 0;
+
+    repos.forEach(r => {
+      if (r.language) {
+        langCounts[r.language] = (langCounts[r.language] || 0) + 1;
+        totalLangRepos++;
+      }
+    });
+
+    if (totalLangRepos === 0) {
+      container.style.display = 'none';
+      return;
+    }
+
+    container.style.display = 'block';
+    bar.innerHTML = '';
+    legend.innerHTML = '';
+
+    const sortedLangs = Object.entries(langCounts).sort((a, b) => b[1] - a[1]);
+
+    sortedLangs.forEach(([lang, count]) => {
+      const percentage = ((count / totalLangRepos) * 100).toFixed(1);
+      const color = langColors[lang] || langColors.default;
+
+      // Segment in progress bar
+      const seg = document.createElement('div');
+      seg.className = 'lang-segment';
+      seg.style.width = `${percentage}%`;
+      seg.style.backgroundColor = color;
+      seg.title = `${lang}: ${percentage}% (${count} repos)`;
+      bar.appendChild(seg);
+
+      // Item in legend
+      const leg = document.createElement('div');
+      leg.className = 'legend-item';
+      leg.innerHTML = `
+        <div class="legend-dot" style="background-color: ${color}"></div>
+        <span><strong>${escapeHTML(lang)}</strong> ${percentage}%</span>
+      `;
+      legend.appendChild(leg);
+    });
   };
 
   const populateLanguageFilter = (repos) => {
@@ -248,6 +338,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = 'repo-card';
 
+    // Mouse Spotlight Hover Tracking
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
+    });
+
     const langColor = langColors[repo.language] || langColors.default;
     const topicsHtml = (repo.topics || []).slice(0, 3).map(t => `<span class="topic-badge">#${escapeHTML(t)}</span>`).join('');
     
@@ -258,6 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
       </a>
     ` : '';
 
+    const cloneCommand = `git clone ${repo.clone_url || repo.html_url + '.git'}`;
+
     card.innerHTML = `
       <div class="repo-header">
         <h3 class="repo-title">
@@ -265,22 +366,43 @@ document.addEventListener('DOMContentLoaded', () => {
           <a href="${escapeHTML(repo.html_url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(repo.name)}</a>
           ${repo.fork ? '<span class="fork-tag">Fork</span>' : ''}
         </h3>
-        ${homepageHtml}
+        <div class="repo-actions-top">
+          <button class="icon-btn copy-clone-btn" data-clone="${escapeHTML(cloneCommand)}" title="Copy git clone command" aria-label="Copy clone command">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+          ${homepageHtml}
+        </div>
       </div>
       <p class="repo-desc">${escapeHTML(repo.description || 'No description provided.')}</p>
       ${topicsHtml ? `<div class="repo-topics">${topicsHtml}</div>` : ''}
       <div class="repo-meta">
-        ${repo.language ? `<div class="meta-item"><div class="language-dot" style="background-color: ${langColor}"></div><span>${escapeHTML(repo.language)}</span></div>` : ''}
-        <div class="meta-item">
-          <svg height="14" viewBox="0 0 16 16" width="14" fill="currentColor"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>
-          <span>${repo.stargazers_count}</span>
+        <div class="repo-meta-left">
+          ${repo.language ? `<div class="meta-item"><div class="language-dot" style="background-color: ${langColor}"></div><span>${escapeHTML(repo.language)}</span></div>` : ''}
+          <div class="meta-item">
+            <svg height="14" viewBox="0 0 16 16" width="14" fill="currentColor"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>
+            <span>${repo.stargazers_count || 0}</span>
+          </div>
+          <div class="meta-item">
+            <svg height="14" viewBox="0 0 16 16" width="14" fill="currentColor"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path></svg>
+            <span>${repo.forks_count || 0}</span>
+          </div>
         </div>
-        <div class="meta-item">
-          <svg height="14" viewBox="0 0 16 16" width="14" fill="currentColor"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path></svg>
-          <span>${repo.forks_count}</span>
-        </div>
+        <span class="time-badge">${formatRelativeTime(repo.updated_at)}</span>
       </div>
     `;
+
+    // Copy Clone Listener
+    const copyBtn = card.querySelector('.copy-clone-btn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const textToCopy = copyBtn.dataset.clone;
+        navigator.clipboard.writeText(textToCopy)
+          .then(() => showToast(`Copied clone command for ${repo.name}`))
+          .catch(() => showToast('Failed to copy to clipboard'));
+      });
+    }
+
     return card;
   };
 
@@ -311,22 +433,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const filterRepos = () => {
+  const filterAndSortRepos = () => {
     const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
     const selectedLang = languageSelect ? languageSelect.value : 'all';
+    const sortBy = sortSelect ? sortSelect.value : 'updated';
 
-    filteredRepos = allRepos.filter(repo => {
+    // 1. Filter
+    let result = allRepos.filter(repo => {
       const matchesSearch = repo.name.toLowerCase().includes(query) || (repo.description && repo.description.toLowerCase().includes(query));
       const matchesLang = selectedLang === 'all' || repo.language === selectedLang;
       return matchesSearch && matchesLang;
     });
 
+    // 2. Sort (without emojis)
+    result.sort((a, b) => {
+      if (sortBy === 'stars') return (b.stargazers_count || 0) - (a.stargazers_count || 0);
+      if (sortBy === 'forks') return (b.forks_count || 0) - (a.forks_count || 0);
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      // Default: updated
+      return new Date(b.updated_at || 0) - new Date(a.updated_at || 0);
+    });
+
+    filteredRepos = result;
     renderGrid(true);
   };
 
   const handleReposData = (repos) => {
     allRepos = repos;
-    filteredRepos = repos;
 
     let totalStars = 0;
     let forkedCount = 0;
@@ -340,8 +473,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (starsEl) animateCount(starsEl, totalStars);
     if (forksEl) animateCount(forksEl, forkedCount);
 
+    renderLanguageDistribution(repos);
     populateLanguageFilter(repos);
-    renderGrid(true);
+    filterAndSortRepos();
   };
 
   const cachedRepos = getCachedData('user_repos');
@@ -365,9 +499,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  // Event Listeners for Filter & Search
-  if (searchInput) searchInput.addEventListener('input', filterRepos);
-  if (languageSelect) languageSelect.addEventListener('change', filterRepos);
+  // Event Listeners for Filter, Search & Sort
+  if (searchInput) searchInput.addEventListener('input', filterAndSortRepos);
+  if (languageSelect) languageSelect.addEventListener('change', filterAndSortRepos);
+  if (sortSelect) sortSelect.addEventListener('change', filterAndSortRepos);
 
   if (showMoreBtn) {
     showMoreBtn.addEventListener('click', () => {
@@ -375,4 +510,135 @@ document.addEventListener('DOMContentLoaded', () => {
       renderGrid(false);
     });
   }
+
+  // --- Command Palette Modal Logic ---
+  const cmdModal = document.getElementById('cmd-palette-modal');
+  const cmdTrigger = document.getElementById('cmd-k-trigger');
+  const cmdBackdrop = document.getElementById('cmd-palette-backdrop');
+  const cmdInput = document.getElementById('cmd-palette-input');
+  const cmdResults = document.getElementById('cmd-palette-results');
+
+  const defaultCommands = [
+    { title: 'Scroll to About', desc: 'Go to hero section', action: () => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }) },
+    { title: 'Scroll to Skills', desc: 'View tech stack', action: () => document.getElementById('skills')?.scrollIntoView({ behavior: 'smooth' }) },
+    { title: 'Scroll to Stats', desc: 'View GitHub metrics', action: () => document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' }) },
+    { title: 'Scroll to Repositories', desc: 'View repository grid', action: () => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }) },
+    { title: 'Switch to Light Theme', desc: 'Set light mode', action: () => { applyTheme('light'); localStorage.setItem('theme', 'light'); } },
+    { title: 'Switch to Dark Theme', desc: 'Set dark mode', action: () => { applyTheme('dark'); localStorage.setItem('theme', 'dark'); } },
+    { title: 'Copy GitHub Profile URL', desc: 'Copy link to clipboard', action: () => { navigator.clipboard.writeText(`https://github.com/${username}`); showToast('Copied GitHub profile URL!'); } },
+  ];
+
+  let selectedIndex = 0;
+
+  const openCmdPalette = () => {
+    if (!cmdModal) return;
+    cmdModal.classList.add('show');
+    cmdModal.setAttribute('aria-hidden', 'false');
+    if (cmdInput) {
+      cmdInput.value = '';
+      cmdInput.focus();
+    }
+    renderCmdResults('');
+  };
+
+  const closeCmdPalette = () => {
+    if (!cmdModal) return;
+    cmdModal.classList.remove('show');
+    cmdModal.setAttribute('aria-hidden', 'true');
+  };
+
+  const renderCmdResults = (query) => {
+    if (!cmdResults) return;
+    cmdResults.innerHTML = '';
+    selectedIndex = 0;
+    const q = query.toLowerCase().trim();
+
+    const items = [];
+
+    // Filter static commands
+    defaultCommands.forEach(cmd => {
+      if (!q || cmd.title.toLowerCase().includes(q) || cmd.desc.toLowerCase().includes(q)) {
+        items.push({ type: 'cmd', ...cmd });
+      }
+    });
+
+    // Filter repositories
+    allRepos.forEach(repo => {
+      if (q && (repo.name.toLowerCase().includes(q) || (repo.description && repo.description.toLowerCase().includes(q)))) {
+        items.push({
+          type: 'repo',
+          title: `Repo: ${repo.name}`,
+          desc: repo.description || 'GitHub Repository',
+          action: () => window.open(repo.html_url, '_blank')
+        });
+      }
+    });
+
+    if (items.length === 0) {
+      cmdResults.innerHTML = '<div style="padding: 1rem; color: var(--fg-secondary); text-align: center;">No matching commands or repositories found.</div>';
+      return;
+    }
+
+    items.forEach((item, index) => {
+      const el = document.createElement('div');
+      el.className = `cmd-item ${index === 0 ? 'selected' : ''}`;
+      el.dataset.index = index;
+
+      el.innerHTML = `
+        <div class="cmd-item-left">
+          <span>${escapeHTML(item.title)}</span>
+        </div>
+        <span class="cmd-item-desc">${escapeHTML(item.desc)}</span>
+      `;
+
+      el.addEventListener('click', () => {
+        item.action();
+        closeCmdPalette();
+      });
+
+      cmdResults.appendChild(el);
+    });
+  };
+
+  if (cmdTrigger) cmdTrigger.addEventListener('click', openCmdPalette);
+  if (cmdBackdrop) cmdBackdrop.addEventListener('click', closeCmdPalette);
+
+  if (cmdInput) {
+    cmdInput.addEventListener('input', (e) => renderCmdResults(e.target.value));
+    cmdInput.addEventListener('keydown', (e) => {
+      const items = cmdResults.querySelectorAll('.cmd-item');
+      if (items.length === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        items[selectedIndex]?.classList.remove('selected');
+        selectedIndex = (selectedIndex + 1) % items.length;
+        items[selectedIndex]?.classList.add('selected');
+        items[selectedIndex]?.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        items[selectedIndex]?.classList.remove('selected');
+        selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+        items[selectedIndex]?.classList.add('selected');
+        items[selectedIndex]?.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        items[selectedIndex]?.click();
+      }
+    });
+  }
+
+  // Keyboard shortcut Ctrl+K / Cmd+K
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      if (cmdModal && cmdModal.classList.contains('show')) {
+        closeCmdPalette();
+      } else {
+        openCmdPalette();
+      }
+    } else if (e.key === 'Escape') {
+      closeCmdPalette();
+    }
+  });
 });
