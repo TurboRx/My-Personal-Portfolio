@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const formatRelativeTime = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
 
