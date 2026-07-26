@@ -226,8 +226,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const reposEl = document.getElementById('metric-repos');
     const followersEl = document.getElementById('metric-followers');
+    const sinceEl = document.getElementById('metric-since');
+    
     if (reposEl) animateCount(reposEl, data.public_repos || 0);
     if (followersEl) animateCount(followersEl, data.followers || 0);
+    
+    // Member Since Metric Card
+    if (sinceEl && data.created_at) {
+      const createdYear = new Date(data.created_at).getFullYear();
+      sinceEl.textContent = createdYear;
+    }
   };
 
   if (cachedUser) {
@@ -258,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const languageSelect = document.getElementById('language-select');
   const sortSelect = document.getElementById('sort-select');
   const reposGrid = document.getElementById('repos-grid');
+  const filterCounter = document.getElementById('filter-counter');
   const showMoreContainer = document.getElementById('show-more-container');
   const showMoreBtn = document.getElementById('show-more-btn');
 
@@ -299,7 +308,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const percentage = ((count / totalLangRepos) * 100).toFixed(1);
       const color = langColors[lang] || langColors.default;
 
-      // Segment in progress bar
       const seg = document.createElement('div');
       seg.className = 'lang-segment';
       seg.style.width = `${percentage}%`;
@@ -307,7 +315,6 @@ document.addEventListener('DOMContentLoaded', () => {
       seg.title = `${lang}: ${percentage}% (${count} repos)`;
       bar.appendChild(seg);
 
-      // Item in legend
       const leg = document.createElement('div');
       leg.className = 'legend-item';
       leg.innerHTML = `
@@ -338,7 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = 'repo-card';
 
-    // Mouse Spotlight Hover Tracking
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -378,20 +384,29 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="repo-meta">
         <div class="repo-meta-left">
           ${repo.language ? `<div class="meta-item"><div class="language-dot" style="background-color: ${langColor}"></div><span>${escapeHTML(repo.language)}</span></div>` : ''}
-          <div class="meta-item">
-            <svg height="14" viewBox="0 0 16 16" width="14" fill="currentColor"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>
+          <div class="meta-item" title="Stars">
+            <svg height="13" viewBox="0 0 16 16" width="13" fill="currentColor"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>
             <span>${repo.stargazers_count || 0}</span>
           </div>
-          <div class="meta-item">
-            <svg height="14" viewBox="0 0 16 16" width="14" fill="currentColor"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path></svg>
+          <div class="meta-item" title="Forks">
+            <svg height="13" viewBox="0 0 16 16" width="13" fill="currentColor"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path></svg>
             <span>${repo.forks_count || 0}</span>
           </div>
+          <div class="meta-item" title="Watchers">
+            <svg height="13" viewBox="0 0 16 16" width="13" fill="currentColor"><path d="M8 2c1.981 0 3.671.992 4.933 2.274 1.26 1.28 2.067 2.892 2.067 4.726 0 1.834-.807 3.446-2.067 4.726C11.671 15.008 9.981 16 8 16c-1.981 0-3.671-.992-4.933-2.274C1.807 12.446 1 10.834 1 9c0-1.834.807-3.446 2.067-4.726C4.329 2.992 6.019 2 8 2ZM8 3.5c-1.481 0-2.829.758-3.867 1.812C3.093 6.368 2.5 7.616 2.5 9c0 1.384.593 2.632 1.633 3.688C5.171 13.742 6.519 14.5 8 14.5c1.481 0 2.829-.758 3.867-1.812C12.907 11.632 13.5 10.384 13.5 9c0-1.384-.593-2.632-1.633-3.688C10.829 4.258 9.481 3.5 8 3.5ZM8 6a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 1.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"></path></svg>
+            <span>${repo.watchers_count || 0}</span>
+          </div>
+          ${repo.open_issues_count > 0 ? `
+          <div class="meta-item" title="Open Issues">
+            <svg height="13" viewBox="0 0 16 16" width="13" fill="currentColor"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm9 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-.25-6.25a.75.75 0 0 0-1.5 0v3.5a.75.75 0 0 0 1.5 0v-3.5z"></path></svg>
+            <span>${repo.open_issues_count}</span>
+          </div>
+          ` : ''}
         </div>
         <span class="time-badge">${formatRelativeTime(repo.updated_at)}</span>
       </div>
     `;
 
-    // Copy Clone Listener
     const copyBtn = card.querySelector('.copy-clone-btn');
     if (copyBtn) {
       copyBtn.addEventListener('click', (e) => {
@@ -420,6 +435,12 @@ document.addEventListener('DOMContentLoaded', () => {
       reposGrid.appendChild(createRepoCard(repo));
     });
 
+    // Dynamic Filter Counter Update
+    if (filterCounter) {
+      const currentlyShowing = Math.min(visibleCount, filteredRepos.length);
+      filterCounter.textContent = `Showing ${currentlyShowing} of ${filteredRepos.length} public repositories`;
+    }
+
     if (filteredRepos.length === 0) {
       reposGrid.innerHTML = '<p style="grid-column: 1 / -1; color: var(--fg-secondary); text-align: center; padding: 2rem;">No matching repositories found.</p>';
     }
@@ -438,19 +459,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedLang = languageSelect ? languageSelect.value : 'all';
     const sortBy = sortSelect ? sortSelect.value : 'updated';
 
-    // 1. Filter
     let result = allRepos.filter(repo => {
       const matchesSearch = repo.name.toLowerCase().includes(query) || (repo.description && repo.description.toLowerCase().includes(query));
       const matchesLang = selectedLang === 'all' || repo.language === selectedLang;
       return matchesSearch && matchesLang;
     });
 
-    // 2. Sort (without emojis)
     result.sort((a, b) => {
       if (sortBy === 'stars') return (b.stargazers_count || 0) - (a.stargazers_count || 0);
       if (sortBy === 'forks') return (b.forks_count || 0) - (a.forks_count || 0);
       if (sortBy === 'name') return a.name.localeCompare(b.name);
-      // Default: updated
       return new Date(b.updated_at || 0) - new Date(a.updated_at || 0);
     });
 
@@ -555,14 +573,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const items = [];
 
-    // Filter static commands
     defaultCommands.forEach(cmd => {
       if (!q || cmd.title.toLowerCase().includes(q) || cmd.desc.toLowerCase().includes(q)) {
         items.push({ type: 'cmd', ...cmd });
       }
     });
 
-    // Filter repositories
     allRepos.forEach(repo => {
       if (q && (repo.name.toLowerCase().includes(q) || (repo.description && repo.description.toLowerCase().includes(q)))) {
         items.push({
@@ -628,7 +644,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Keyboard shortcut Ctrl+K / Cmd+K
   window.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();

@@ -156,11 +156,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .section-header { margin-bottom: 2rem; }
 .section-header h2 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.03em; margin-bottom: 0.25rem; }
 .section-header p { color: var(--fg-secondary); font-size: 0.875rem; }
-.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
-.metric-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: left; transition: border-color 0.2s ease, transform 0.2s ease; }
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; }
+.metric-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; text-align: left; transition: border-color 0.2s ease, transform 0.2s ease; }
 .metric-card:hover { border-color: var(--fg-primary); transform: translateY(-2px); }
-.metric-card h3 { font-size: 0.875rem; color: var(--fg-secondary); font-weight: 500; margin-bottom: 0.5rem; }
-.metric-value { font-size: 2.25rem; font-weight: 700; color: var(--fg-primary); line-height: 1; letter-spacing: -0.05em; }
+.metric-card h3 { font-size: 0.85rem; color: var(--fg-secondary); font-weight: 500; margin-bottom: 0.5rem; }
+.metric-value { font-size: 2rem; font-weight: 700; color: var(--fg-primary); line-height: 1; letter-spacing: -0.05em; }
 
 /* Projects & Filter Bar */
 .projects-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; }
@@ -230,10 +230,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .demo-btn:hover { border-color: var(--fg-primary); background: var(--accents-1); }
 
 .repo-meta { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.75rem; color: var(--fg-secondary); margin-top: auto; padding-top: 0.5rem; border-top: 1px dashed var(--border-color); }
-.repo-meta-left { display: flex; align-items: center; gap: 0.85rem; }
-.meta-item { display: flex; align-items: center; gap: 0.3rem; }
+.repo-meta-left { display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; }
+.meta-item { display: flex; align-items: center; gap: 0.25rem; }
 .language-dot { width: 8px; height: 8px; border-radius: 50%; }
-.time-badge { font-size: 0.7rem; color: var(--fg-secondary); }
+.time-badge { font-size: 0.7rem; color: var(--fg-secondary); white-space: nowrap; }
 
 /* Skeleton Loaders */
 .skeleton-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
@@ -299,7 +299,6 @@ footer { text-align: center; padding: 2.5rem 1.5rem; border-top: 1px solid var(-
 }
 @media (max-width: 900px) {
   .repos-grid { grid-template-columns: repeat(2, 1fr); }
-  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
   .projects-header { flex-direction: column; align-items: flex-start; }
   .controls-bar { max-width: 100%; }
 }
@@ -308,7 +307,6 @@ footer { text-align: center; padding: 2.5rem 1.5rem; border-top: 1px solid var(-
   .cmd-k-text { display: none; }
   .hamburger { display: flex; }
   .repos-grid { grid-template-columns: 1fr; }
-  .metrics-grid { grid-template-columns: 1fr; }
   .hero h1 { font-size: 2.25rem; }
   .hero-actions { flex-direction: column; width: 100%; }
   .hero-actions .btn { width: 100%; }
