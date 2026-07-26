@@ -132,7 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  const getSavedTheme = () => localStorage.getItem('theme') || 'system';
+  const getSavedTheme = () => {
+    try {
+      return localStorage.getItem('theme') || 'system';
+    } catch (e) {
+      return 'system';
+    }
+  };
   let currentSetting = getSavedTheme();
   applyTheme(currentSetting);
 
@@ -154,7 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
   themeOptions.forEach(btn => {
     btn.addEventListener('click', () => {
       currentSetting = btn.dataset.themeVal;
-      localStorage.setItem('theme', currentSetting);
+      try {
+        localStorage.setItem('theme', currentSetting);
+      } catch (e) {
+        // Ignore quota or security errors
+      }
       applyTheme(currentSetting);
     });
   });
@@ -483,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let forkedCount = 0;
     repos.forEach(repo => {
       totalStars += repo.stargazers_count || 0;
-      if (repo.fork) forkedCount += 1;
+      if (repo.forks_count) forkedCount += repo.forks_count;
     });
 
     const starsEl = document.getElementById('metric-stars');
