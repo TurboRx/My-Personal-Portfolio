@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const bioElement = document.getElementById('profile-bio');
     if (bioElement) {
-      bioElement.textContent = data.bio || "I'm TurboRx, a passionate developer who loves exploring new technologies and building innovative projects.";
+      bioElement.textContent = "Hello 👋 I'm TurboRx, a passionate developer who loves exploring new technologies and building innovative projects.";
     }
 
     if (data.name) {
