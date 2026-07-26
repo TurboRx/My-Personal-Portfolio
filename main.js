@@ -626,6 +626,13 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="cmd-item-desc">${escapeHTML(item.desc)}</span>
       `;
 
+      el.addEventListener('mouseenter', () => {
+        const allItems = cmdResults.querySelectorAll('.cmd-item');
+        allItems.forEach(i => i.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedIndex = index;
+      });
+
       el.addEventListener('click', () => {
         item.action();
         closeCmdPalette();
