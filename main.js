@@ -292,7 +292,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const langColors = {
     JavaScript: '#f1e05a', TypeScript: '#3178c6', HTML: '#e34c26', CSS: '#563d7c',
     Python: '#3572A5', Vue: '#41b883', Rust: '#dea584', Go: '#00ADD8', C: '#555555',
-    'C++': '#f34b7d', Java: '#b07219', PHP: '#4F5D95', default: '#858585'
+    'C++': '#f34b7d', Java: '#b07219', PHP: '#4F5D95', Swift: '#F05138', Kotlin: '#A97BFF',
+    Shell: '#89e051', Dockerfile: '#384d54', Ruby: '#701516', Dart: '#00B4AB', 'C#': '#178600',
+    Zig: '#ec915c', R: '#198CE7', Elixir: '#6e4a7e', Lua: '#000080', Haskell: '#5e5086',
+    Scala: '#c22d40', Assembly: '#6E4C13', Svelte: '#ff3e00', SCSS: '#c6538c'
+  };
+
+  const getLanguageColor = (lang) => {
+    if (!lang) return '#858585';
+    if (langColors[lang]) return langColors[lang];
+    // Deterministic HSL color generator for any new/unmapped language
+    let hash = 0;
+    for (let i = 0; i < lang.length; i++) {
+      hash = lang.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = Math.abs(hash) % 360;
+    return `hsl(${hue}, 65%, 55%)`;
   };
 
   // --- Render Language Distribution Bar ---
@@ -325,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sortedLangs.forEach(([lang, count]) => {
       const percentage = ((count / totalLangRepos) * 100).toFixed(1);
-      const color = langColors[lang] || langColors.default;
+      const color = getLanguageColor(lang);
 
       const seg = document.createElement('div');
       seg.className = 'lang-segment';
@@ -372,15 +387,8 @@ document.addEventListener('DOMContentLoaded', () => {
       card.style.setProperty('--mouse-y', `${y}px`);
     });
 
-    const langColor = langColors[repo.language] || langColors.default;
+    const langColor = getLanguageColor(repo.language);
     const topicsHtml = (repo.topics || []).slice(0, 3).map(t => `<span class="topic-badge">#${escapeHTML(t)}</span>`).join('');
-    
-    const homepageHtml = repo.homepage ? `
-      <a href="${escapeHTML(repo.homepage)}" target="_blank" rel="noopener noreferrer" class="demo-btn" title="Live Preview">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-        Live Preview
-      </a>
-    ` : '';
 
     const cloneCommand = `git clone ${repo.clone_url || repo.html_url + '.git'}`;
 
@@ -395,7 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
           <button class="icon-btn copy-clone-btn" data-clone="${escapeHTML(cloneCommand)}" title="Copy git clone command" aria-label="Copy clone command">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
           </button>
-          ${homepageHtml}
         </div>
       </div>
       <p class="repo-desc">${escapeHTML(repo.description || 'No description provided.')}</p>
