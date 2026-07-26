@@ -330,15 +330,51 @@ footer { text-align: center; padding: 2.5rem 1.5rem; border-top: 1px solid var(-
 }
 @media (max-width: 900px) {
   .repos-grid { grid-template-columns: repeat(2, 1fr); }
-  .projects-header { flex-direction: column; align-items: flex-start; }
-  .controls-bar { max-width: 100%; }
+  .projects-header { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
+  .controls-bar { max-width: 100%; flex-direction: column; gap: 0.75rem; }
+  .search-box, .language-select, .sort-select { width: 100%; flex: none; }
 }
 @media (max-width: 600px) {
+  .nav-container { padding: 0.6rem 1rem; }
+  .nav-right { gap: 0.4rem; }
   .nav-links { display: none; }
+  .cmd-k-btn { padding: 0.4rem 0.6rem; font-size: 0.75rem; }
   .cmd-k-text { display: none; }
+  .cmd-k-kbd { display: none; }
   .hamburger { display: flex; }
-  .repos-grid { grid-template-columns: 1fr; }
-  .hero h1 { font-size: 2.25rem; }
+  
+  .hero { min-height: auto; padding: 3rem 1.25rem 2rem 1.25rem; }
+  .hero h1 { font-size: 2.1rem; }
+  .subtitle { font-size: 0.95rem; }
   .hero-actions { flex-direction: column; width: 100%; }
-  .hero-actions .btn { width: 100%; }
+  .hero-actions .btn { width: 100%; padding: 0.75rem 1rem; }
+  
+  .section { padding: 2.5rem 1rem; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  .metric-card { padding: 1rem; }
+  .metric-value { font-size: 1.5rem; }
+  .repos-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .repo-card { padding: 1rem; }
+  
+  /* Modals on Mobile */
+  .cmd-palette-modal { padding-top: 5vh; }
+  .cmd-palette-box { width: 94vw; max-height: 82vh; }
+  .cmd-item { padding: 0.65rem 0.75rem; flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+  .cmd-item-desc { font-size: 0.7rem; }
+  
+  .terminal-modal { padding: 0.5rem; }
+  .terminal-box { width: 100%; height: 85vh; font-size: 0.78rem; }
+  .terminal-body { padding: 0.75rem 0.5rem; }
+  .term-prompt { margin-right: 0.25rem; font-size: 0.75rem; }
+
+  /* Toast & Floating Button */
+  .toast-container { left: 12px; right: 12px; bottom: 12px; }
+  .toast-item { width: 100%; justify-content: center; }
+  .back-to-top-btn { bottom: 16px; right: 16px; width: 38px; height: 38px; }
+}
+
+@media (max-width: 400px) {
+  .metrics-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 1.8rem; }
+  .logo span { font-size: 1rem; }
 }
