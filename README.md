@@ -1,4 +1,4 @@
-# TurboRx - Personal Portfolio & Analytics
+# TurboRx - Personal Portfolio
 
 A fast, lightweight, and modern personal developer portfolio powered by Vanilla HTML, CSS, and JavaScript with GitHub API integration.
 
