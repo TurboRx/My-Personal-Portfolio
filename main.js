@@ -681,7 +681,9 @@ document.addEventListener('DOMContentLoaded', () => {
         items[selectedIndex]?.click();
       }
     });
-    // --- Interactive CLI Terminal Logic ---
+  }
+
+  // --- Interactive CLI Terminal Logic ---
   const terminalModal = document.getElementById('terminal-modal');
   const terminalTrigger = document.getElementById('terminal-trigger');
   const terminalCloseBtn = document.getElementById('terminal-close-btn');
@@ -917,9 +919,6 @@ Contact & Links:
         } else if (matches.length > 1) {
           printTermOutput(current, `Possible completions:\n  ${matches.join('  ')}`);
         }
-      }
-    });
-  }al);
       }
     });
   }
