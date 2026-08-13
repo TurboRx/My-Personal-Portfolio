@@ -293,36 +293,54 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 /* Footer */
 footer { text-align: center; padding: 2.5rem 1.5rem; border-top: 1px solid var(--border-color); color: var(--fg-secondary); font-size: 0.875rem; margin-top: 3rem; }
 
-/* Interactive Terminal Modal */
+/* Interactive Terminal Modal (Advanced & Modern UI) */
 .terminal-modal {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1000; display: none;
   align-items: center; justify-content: center; padding: 1.5rem;
 }
 .terminal-modal.show { display: flex; }
-.terminal-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-.terminal-box {
-  position: relative; width: 100%; max-width: 720px; height: 480px; background: #0d1117; border: 1px solid #30363d;
-  border-radius: 10px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column; font-family: 'Fira Code', 'Courier New', monospace; font-size: 0.85rem; color: #c9d1d9;
+.terminal-backdrop {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--modal-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
-.terminal-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; background: #161b22; border-bottom: 1px solid #30363d; }
-.terminal-dots { display: flex; gap: 8px; }
-.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; cursor: pointer; }
-.dot.red { background: #ff5f56; }
-.dot.yellow { background: #ffbd2e; }
-.dot.green { background: #27c93f; }
-.terminal-title { font-size: 0.75rem; color: #8b949e; font-weight: 500; }
-.terminal-body { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
-.terminal-welcome { color: #8b949e; margin-bottom: 0.5rem; line-height: 1.6; }
-.term-highlight { color: #58a6ff; font-weight: 600; }
-.term-prompt { color: #7ee787; font-weight: 600; margin-right: 0.5rem; }
-.term-cmd { color: #f0883e; }
+.terminal-box {
+  position: relative; width: 100%; max-width: 800px; height: 520px; max-height: 85vh;
+  background: #090d16; border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 12px; box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(99, 102, 241, 0.15);
+  overflow: hidden; display: flex; flex-direction: column;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace; font-size: 0.85rem; color: #c9d1d9;
+}
+.terminal-bar {
+  display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 1rem;
+  background: #111622; border-bottom: 1px solid #21262d;
+}
+.terminal-dots { display: flex; gap: 8px; align-items: center; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; cursor: pointer; transition: transform 0.15s; }
+.dot:hover { transform: scale(1.15); }
+.dot.red { background: #ff5f56; border: 1px solid #e0443e; }
+.dot.yellow { background: #ffbd2e; border: 1px solid #dea123; }
+.dot.green { background: #27c93f; border: 1px solid #1aab29; }
+.terminal-title { font-size: 0.78rem; color: #8b949e; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; }
+.term-badge { background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 0.68rem; font-weight: 600; }
+.terminal-actions { display: flex; align-items: center; }
+.terminal-body { flex: 1; padding: 1.25rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; line-height: 1.6; }
+.terminal-welcome { background: rgba(17, 22, 34, 0.7); border: 1px solid #21262d; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 0.75rem; color: #8b949e; }
+.term-banner-title { color: #818cf8; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem; }
+.term-highlight { color: #38bdf8; font-weight: 600; }
+.term-prompt { font-weight: 600; margin-right: 0.5rem; user-select: none; }
+.term-prompt-user { color: #38bdf8; }
+.term-prompt-at { color: #94a3b8; }
+.term-prompt-host { color: #34d399; }
+.term-prompt-path { color: #f472b6; }
+.term-cmd { color: #f8fafc; font-weight: 500; }
 .term-out { color: #c9d1d9; white-space: pre-wrap; line-height: 1.5; margin-bottom: 0.5rem; }
-.term-error { color: #ff7b72; }
-.term-success { color: #7ee787; }
+.term-error { color: #f87171; white-space: pre-wrap; line-height: 1.5; margin-bottom: 0.5rem; }
+.term-success { color: #34d399; }
 .terminal-input-line { display: flex; align-items: center; }
 .terminal-input-line input {
-  flex: 1; background: transparent; border: none; outline: none; color: #58a6ff; font-family: inherit; font-size: 0.85rem;
+  flex: 1; background: transparent; border: none; outline: none; color: #f8fafc; font-family: inherit; font-size: 0.85rem; caret-color: #818cf8;
 }
+.terminal-input-line input::placeholder { color: #475569; }
 
 /* Responsive Media Queries */
 @media (max-width: 1100px) {

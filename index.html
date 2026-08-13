@@ -242,21 +242,27 @@
     <div class="terminal-box">
       <div class="terminal-bar">
         <div class="terminal-dots">
-          <span class="dot red" id="terminal-close-btn" title="Close Terminal"></span>
-          <span class="dot yellow"></span>
-          <span class="dot green"></span>
+          <span class="dot red" id="terminal-close-btn" title="Close Terminal (or type exit)"></span>
+          <span class="dot yellow" title="Minimize"></span>
+          <span class="dot green" title="Maximize"></span>
         </div>
-        <div class="terminal-title">turborx@portfolio:~</div>
+        <div class="terminal-title">
+          <span class="term-badge">zsh</span>
+          turborx@portfolio:~
+        </div>
+        <div class="terminal-actions">
+          <kbd class="cmd-k-kbd">Esc or type 'exit' to close</kbd>
+        </div>
       </div>
       <div class="terminal-body" id="terminal-body">
         <div class="terminal-welcome">
-          Welcome to TurboRx Terminal v1.0.0<br/>
-          Type <span class="term-highlight">'help'</span> for a list of available commands.
+          <div class="term-banner-title">TurboRx Interactive Shell v2.5.0</div>
+          <div>Type <span class="term-highlight">'help'</span> for available commands, or type <span class="term-highlight">'exit'</span> to close the terminal.</div>
         </div>
         <div id="terminal-output"></div>
         <div class="terminal-input-line">
-          <span class="term-prompt">turborx@portfolio:~$</span>
-          <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" aria-label="Terminal command input" />
+          <span class="term-prompt"><span class="term-prompt-user">turborx</span><span class="term-prompt-at">@</span><span class="term-prompt-host">portfolio</span>:<span class="term-prompt-path">~</span>$</span>
+          <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" aria-label="Terminal command input" placeholder="Type a command (e.g. help, neofetch, exit)..." />
         </div>
       </div>
     </div>

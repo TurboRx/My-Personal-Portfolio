@@ -681,9 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
         items[selectedIndex]?.click();
       }
     });
-  }
-
-  // --- Interactive CLI Terminal Logic ---
+    // --- Interactive CLI Terminal Logic ---
   const terminalModal = document.getElementById('terminal-modal');
   const terminalTrigger = document.getElementById('terminal-trigger');
   const terminalCloseBtn = document.getElementById('terminal-close-btn');
@@ -691,6 +689,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const terminalInput = document.getElementById('terminal-input');
   const terminalOutput = document.getElementById('terminal-output');
   const terminalBody = document.getElementById('terminal-body');
+
+  const termHistory = [];
+  let termHistoryIndex = -1;
+
+  const validCommands = [
+    'help', 'about', 'skills', 'stats', 'repos', 'neofetch',
+    'whoami', 'contact', 'date', 'echo', 'sudo', 'matrix',
+    'theme', 'clear', 'exit', 'quit'
+  ];
 
   const openTerminal = () => {
     if (!terminalModal) return;
@@ -706,6 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!terminalModal) return;
     terminalModal.classList.remove('show');
     terminalModal.setAttribute('aria-hidden', 'true');
+    showToast('Terminal session exited.');
   };
 
   if (terminalTrigger) terminalTrigger.addEventListener('click', openTerminal);
@@ -717,7 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const entry = document.createElement('div');
     entry.style.marginBottom = '0.75rem';
     entry.innerHTML = `
-      <div><span class="term-prompt">turborx@portfolio:~$</span> <span class="term-cmd">${escapeHTML(cmdText)}</span></div>
+      <div><span class="term-prompt"><span class="term-prompt-user">turborx</span><span class="term-prompt-at">@</span><span class="term-prompt-host">portfolio</span>:<span class="term-prompt-path">~</span>$</span> <span class="term-cmd">${escapeHTML(cmdText)}</span></div>
       <div class="${isError ? 'term-error' : 'term-out'}">${resultHTML}</div>
     `;
     terminalOutput.appendChild(entry);
@@ -727,6 +735,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const handleTerminalCommand = (rawInput) => {
     const input = rawInput.trim();
     if (!input) return;
+
+    termHistory.push(input);
+    termHistoryIndex = termHistory.length;
+
     const parts = input.split(' ');
     const cmd = parts[0].toLowerCase();
     const args = parts.slice(1);
@@ -744,14 +756,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cmd === 'help') {
       printTermOutput(input, `
 Available Commands:
-  <span class="term-highlight">help</span>       - Show this command help list
-  <span class="term-highlight">about</span>      - Print developer intro & bio
-  <span class="term-highlight">skills</span>     - View tech stack & frameworks
-  <span class="term-highlight">stats</span>      - View GitHub analytics metrics
+  <span class="term-highlight">help</span>       - Display this system command catalog
+  <span class="term-highlight">about</span>      - Print developer intro & profile
+  <span class="term-highlight">skills</span>     - List core technical stack & tools
+  <span class="term-highlight">stats</span>      - Print live GitHub analytics metrics
   <span class="term-highlight">repos</span>      - List public GitHub repositories
-  <span class="term-highlight">theme</span>      - Switch theme (usage: theme light | dark | system)
+  <span class="term-highlight">neofetch</span>   - Display system architecture overview
+  <span class="term-highlight">whoami</span>     - Print current terminal user identity
+  <span class="term-highlight">contact</span>    - Print developer contact & web links
+  <span class="term-highlight">theme</span>      - Switch UI theme (usage: theme light | dark | system)
+  <span class="term-highlight">date</span>       - Output current timestamp
   <span class="term-highlight">clear</span>      - Clear terminal screen
-  <span class="term-highlight">exit</span>       - Close terminal window
+  <span class="term-highlight">exit</span>       - Exit and close the terminal shell
+
+Type 'exit' or press [Esc] to exit the terminal at any time.
       `);
       return;
     }
@@ -759,19 +777,20 @@ Available Commands:
     if (cmd === 'about' || cmd === 'bio') {
       printTermOutput(input, `
 TurboRx - Full Stack Developer
-Hello 👋 I'm TurboRx, a passionate developer who loves exploring new technologies and building innovative projects.
-GitHub: https://github.com/TurboRx
+Hello, I'm TurboRx, a passionate developer who loves exploring new technologies and building innovative projects.
+GitHub Profile: https://github.com/TurboRx
+Portfolio URL: https://turborx.pages.dev
       `);
       return;
     }
 
     if (cmd === 'skills') {
       printTermOutput(input, `
-Tech Stack & Tools:
- • JavaScript (ES6+)   • TypeScript
- • HTML5 / CSS3        • React / Next.js
- • Node.js             • Python
- • Git & GitHub        • REST APIs
+Technical Stack & Tooling:
+  [Languages]  JavaScript (ES6+), TypeScript, Python, Rust
+  [Frontend]   HTML5, CSS3, React, Next.js, Tailwind CSS
+  [Backend]    Node.js, Prisma, PostgreSQL, REST APIs
+  [DevOps]     Git, GitHub Actions, Docker, Cloudflare Pages
       `);
       return;
     }
@@ -781,21 +800,74 @@ Tech Stack & Tools:
       const repos = document.getElementById('metric-repos')?.textContent || '0';
       const followers = document.getElementById('metric-followers')?.textContent || '0';
       const forks = document.getElementById('metric-forks')?.textContent || '0';
+      const since = document.getElementById('metric-since')?.textContent || '-';
       printTermOutput(input, `
-GitHub Analytics:
- Total Stars: ${stars}  | Public Repos: ${repos}
- Followers: ${followers}  | Total Forks: ${forks}
+GitHub Analytics Metrics:
+  Total Stars:   ${stars}
+  Public Repos:  ${repos}
+  Followers:     ${followers}
+  Total Forks:   ${forks}
+  Member Since:  ${since}
       `);
       return;
     }
 
     if (cmd === 'repos' || cmd === 'projects') {
       if (allRepos.length === 0) {
-        printTermOutput(input, 'No repositories loaded or fetching in progress...');
+        printTermOutput(input, 'Fetching repository catalog from GitHub API...');
         return;
       }
-      const repoList = allRepos.slice(0, 10).map(r => ` • <span class="term-highlight">${escapeHTML(r.name)}</span> (${r.language || 'Unknown'}) - ${escapeHTML(r.description || 'No description')}`).join('\n');
+      const repoList = allRepos.slice(0, 10).map((r, i) => `  [${i + 1}] <span class="term-highlight">${escapeHTML(r.name)}</span> (${r.language || 'Code'}) - ${escapeHTML(r.description || 'No description')}`).join('\n');
       printTermOutput(input, `Showing top repositories:\n${repoList}`);
+      return;
+    }
+
+    if (cmd === 'neofetch' || cmd === 'fetch') {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+      printTermOutput(input, `
+<span class="term-highlight">       .-.      </span>  <span class="term-success">turborx@portfolio</span>
+<span class="term-highlight">      (   )     </span>  ------------------
+<span class="term-highlight">     .-' '-------</span>  <span class="term-highlight">OS:</span> Cloudflare Pages Edge (Linux)
+<span class="term-highlight">    (           )</span> <span class="term-highlight">Host:</span> TurboRx Personal Web Shell
+<span class="term-highlight">     '-. .-------</span> <span class="term-highlight">Kernel:</span> 5.15.0-apishift-x86_64
+<span class="term-highlight">      (   )     </span>  <span class="term-highlight">Shell:</span> zsh 5.9 (x86_64-pc-linux-gnu)
+<span class="term-highlight">       '-'      </span>  <span class="term-highlight">Theme:</span> ${currentTheme}
+                  <span class="term-highlight">Stack:</span> Vanilla JS, CSS3, HTML5
+      `);
+      return;
+    }
+
+    if (cmd === 'whoami') {
+      printTermOutput(input, `turborx (Guest Developer Session)`);
+      return;
+    }
+
+    if (cmd === 'contact' || cmd === 'social') {
+      printTermOutput(input, `
+Contact & Links:
+  GitHub:    https://github.com/TurboRx
+  Portfolio: https://turborx.pages.dev
+      `);
+      return;
+    }
+
+    if (cmd === 'date') {
+      printTermOutput(input, new Date().toString());
+      return;
+    }
+
+    if (cmd === 'echo') {
+      printTermOutput(input, escapeHTML(args.join(' ')));
+      return;
+    }
+
+    if (cmd === 'sudo') {
+      printTermOutput(input, `Permission denied: TurboRx is the only root administrator.`, true);
+      return;
+    }
+
+    if (cmd === 'matrix') {
+      printTermOutput(input, `<span class="term-success">01010100 01110101 01110010 01100010 01101111 01010010 01111000<br/>Wake up, Neo... The Matrix has you.</span>`);
       return;
     }
 
@@ -804,14 +876,14 @@ GitHub Analytics:
       if (['light', 'dark', 'system'].includes(mode)) {
         applyTheme(mode);
         try { localStorage.setItem('theme', mode); } catch (e) {}
-        printTermOutput(input, `<span class="term-success">Theme changed to ${mode} mode.</span>`);
+        printTermOutput(input, `<span class="term-success">Theme updated to ${mode} mode.</span>`);
       } else {
         printTermOutput(input, `Usage: theme [light | dark | system]`, true);
       }
       return;
     }
 
-    printTermOutput(input, `Command not found: '${escapeHTML(cmd)}'. Type <span class="term-highlight">'help'</span> for available commands.`, true);
+    printTermOutput(input, `Command not found: '${escapeHTML(cmd)}'. Type <span class="term-highlight">'help'</span> for available commands, or <span class="term-highlight">'exit'</span> to close terminal.`, true);
   };
 
   if (terminalInput) {
@@ -820,6 +892,34 @@ GitHub Analytics:
         const val = terminalInput.value;
         terminalInput.value = '';
         handleTerminalCommand(val);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (termHistory.length > 0 && termHistoryIndex > 0) {
+          termHistoryIndex--;
+          terminalInput.value = termHistory[termHistoryIndex] || '';
+        }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (termHistoryIndex < termHistory.length - 1) {
+          termHistoryIndex++;
+          terminalInput.value = termHistory[termHistoryIndex] || '';
+        } else {
+          termHistoryIndex = termHistory.length;
+          terminalInput.value = '';
+        }
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        const current = terminalInput.value.trim().toLowerCase();
+        if (!current) return;
+        const matches = validCommands.filter(c => c.startsWith(current));
+        if (matches.length === 1) {
+          terminalInput.value = matches[0];
+        } else if (matches.length > 1) {
+          printTermOutput(current, `Possible completions:\n  ${matches.join('  ')}`);
+        }
+      }
+    });
+  }al);
       }
     });
   }
