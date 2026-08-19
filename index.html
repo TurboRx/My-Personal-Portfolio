@@ -264,19 +264,32 @@
           <kbd class="cmd-k-kbd term-esc-hint">Esc or 'gui'</kbd>
         </div>
       </div>
+      <div class="terminal-quick-chips" id="terminal-quick-chips">
+        <span class="chips-label">Quick:</span>
+        <button class="term-chip" data-cmd="help">help</button>
+        <button class="term-chip" data-cmd="about">about</button>
+        <button class="term-chip" data-cmd="skills">skills</button>
+        <button class="term-chip" data-cmd="repos">repos</button>
+        <button class="term-chip" data-cmd="stats">stats</button>
+        <button class="term-chip" data-cmd="neofetch">neofetch</button>
+        <button class="term-chip" data-cmd="clear">clear</button>
+        <button class="term-chip" data-cmd="gui">gui</button>
+      </div>
       <div class="terminal-body" id="terminal-body">
         <div class="terminal-welcome">
           <div class="term-banner-title">TurboRx Interactive Terminal</div>
-          <div class="term-banner-desc">Interactive portfolio shell environment. Type <span class="term-highlight">'help'</span> for available commands, or click <span class="term-highlight">'Return to GUI'</span> to switch back.</div>
+          <div class="term-banner-desc">Interactive portfolio shell environment. Type <span class="term-highlight">'help'</span> or tap the quick commands above. Click <span class="term-highlight">'Return to GUI'</span> to switch back.</div>
         </div>
         <div id="terminal-output"></div>
-        <div class="terminal-input-line">
+        <div class="terminal-input-line" id="terminal-input-line">
           <span class="term-prompt"><span class="term-prompt-user">turborx</span><span class="term-prompt-at">@</span><span class="term-prompt-host">portfolio</span>:<span class="term-prompt-path">~</span>$</span>
-          <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" aria-label="Terminal command input" placeholder="Type a command (e.g. help, about, skills, repos)..." />
+          <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" aria-label="Terminal command input" placeholder="Type a command (e.g. help, about, repos)..." />
         </div>
       </div>
     </div>
   </div>
+
+  <div id="blocky-transition-overlay" class="blocky-overlay" aria-hidden="true"></div>
 
   <div class="toast-container" id="toast-container"></div>
 

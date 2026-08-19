@@ -405,14 +405,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = 'repo-card';
 
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      card.style.setProperty('--mouse-x', `${x}px`);
-      card.style.setProperty('--mouse-y', `${y}px`);
-    });
-
     const langColor = getLanguageColor(repo.language);
     const topicsHtml = (repo.topics || []).slice(0, 3).map(t => `<span class="topic-badge">#${escapeHTML(t)}</span>`).join('');
 
@@ -714,6 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileTermTrigger = document.getElementById('mobile-term-trigger');
   const termClearDot = document.getElementById('terminal-clear-dot');
   const termFullscreenDot = document.getElementById('terminal-fullscreen-dot');
+  const blockyOverlay = document.getElementById('blocky-transition-overlay');
 
   let currentPortfolioMode = 'gui';
   const termHistory = [];
@@ -725,45 +718,91 @@ document.addEventListener('DOMContentLoaded', () => {
     'date', 'echo', 'sudo', 'matrix', 'theme', 'clear', 'gui', 'exit', 'quit'
   ];
 
-  const setPortfolioMode = (mode, notify = true) => {
-    currentPortfolioMode = mode;
+  const triggerBlockyTransition = (callback) => {
+    if (!blockyOverlay) {
+      if (callback) callback();
+      return;
+    }
+    const glyphs = ['█', '▓', '▒', '░', '0', '1', '>', '_', '#', '/', '+'];
+    blockyOverlay.innerHTML = '';
+    
+    for (let i = 0; i < 96; i++) {
+      const tile = document.createElement('div');
+      tile.className = 'blocky-tile';
+      tile.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+      blockyOverlay.appendChild(tile);
+    }
 
-    if (mode === 'terminal') {
-      document.body.classList.add('terminal-mode-active');
-      if (terminalModal) {
-        terminalModal.classList.add('show');
-        terminalModal.setAttribute('aria-hidden', 'false');
+    blockyOverlay.classList.add('active');
+    
+    const tiles = blockyOverlay.children;
+    for (let i = 0; i < tiles.length; i++) {
+      const delay = Math.random() * 80;
+      setTimeout(() => {
+        tiles[i]?.classList.add('revealed');
+      }, delay);
+    }
+
+    setTimeout(() => {
+      if (callback) callback();
+    }, 120);
+
+    setTimeout(() => {
+      blockyOverlay.classList.remove('active');
+      setTimeout(() => {
+        blockyOverlay.innerHTML = '';
+      }, 150);
+    }, 280);
+  };
+
+  const setPortfolioMode = (mode, notify = true, animate = true) => {
+    const applyMode = () => {
+      currentPortfolioMode = mode;
+
+      if (mode === 'terminal') {
+        document.body.classList.add('terminal-mode-active');
+        if (terminalModal) {
+          terminalModal.classList.add('show');
+          terminalModal.setAttribute('aria-hidden', 'false');
+        }
+        if (modeGuiBtn) {
+          modeGuiBtn.classList.remove('active');
+          modeGuiBtn.setAttribute('aria-checked', 'false');
+        }
+        if (terminalTrigger) {
+          terminalTrigger.classList.add('active');
+          terminalTrigger.setAttribute('aria-checked', 'true');
+        }
+        setTimeout(() => {
+          if (terminalInput) terminalInput.focus();
+          if (terminalBody) terminalBody.scrollTop = terminalBody.scrollHeight;
+        }, 50);
+        if (notify) showToast('Switched to Terminal Mode');
+      } else {
+        document.body.classList.remove('terminal-mode-active');
+        if (terminalModal) {
+          terminalModal.classList.remove('show');
+          terminalModal.setAttribute('aria-hidden', 'true');
+        }
+        if (modeGuiBtn) {
+          modeGuiBtn.classList.add('active');
+          modeGuiBtn.setAttribute('aria-checked', 'true');
+        }
+        if (terminalTrigger) {
+          terminalTrigger.classList.remove('active');
+          terminalTrigger.setAttribute('aria-checked', 'false');
+        }
+        if (window.location.hash === '#terminal') {
+          history.replaceState(null, null, ' ');
+        }
+        if (notify) showToast('Switched to GUI Mode');
       }
-      if (modeGuiBtn) {
-        modeGuiBtn.classList.remove('active');
-        modeGuiBtn.setAttribute('aria-checked', 'false');
-      }
-      if (terminalTrigger) {
-        terminalTrigger.classList.add('active');
-        terminalTrigger.setAttribute('aria-checked', 'true');
-      }
-      if (terminalInput) {
-        terminalInput.focus();
-      }
-      if (notify) showToast('Switched to Terminal Mode');
+    };
+
+    if (animate) {
+      triggerBlockyTransition(applyMode);
     } else {
-      document.body.classList.remove('terminal-mode-active');
-      if (terminalModal) {
-        terminalModal.classList.remove('show');
-        terminalModal.setAttribute('aria-hidden', 'true');
-      }
-      if (modeGuiBtn) {
-        modeGuiBtn.classList.add('active');
-        modeGuiBtn.setAttribute('aria-checked', 'true');
-      }
-      if (terminalTrigger) {
-        terminalTrigger.classList.remove('active');
-        terminalTrigger.setAttribute('aria-checked', 'false');
-      }
-      if (window.location.hash === '#terminal') {
-        history.replaceState(null, null, ' ');
-      }
-      if (notify) showToast('Switched to GUI Mode');
+      applyMode();
     }
   };
 
@@ -787,6 +826,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (termClearDot) {
     termClearDot.addEventListener('click', () => {
       if (terminalOutput) terminalOutput.innerHTML = '';
+      if (terminalInput) terminalInput.focus();
       showToast('Terminal cleared');
     });
   }
@@ -794,11 +834,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (termFullscreenDot) {
     termFullscreenDot.addEventListener('click', () => {
       document.body.classList.toggle('terminal-mode-active');
+      if (terminalInput) terminalInput.focus();
     });
   }
 
   if (window.location.hash === '#terminal') {
-    setPortfolioMode('terminal', false);
+    setPortfolioMode('terminal', false, false);
+  }
+
+  if (terminalBody) {
+    terminalBody.addEventListener('click', (e) => {
+      if (window.getSelection().toString() || e.target.closest('a') || e.target.closest('button')) return;
+      if (terminalInput) terminalInput.focus();
+    });
   }
 
   const printTermOutput = (cmdText, resultHTML, isError = false) => {
@@ -810,7 +858,10 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="${isError ? 'term-error' : 'term-out'}">${resultHTML}</div>
     `;
     terminalOutput.appendChild(entry);
-    if (terminalBody) terminalBody.scrollTop = terminalBody.scrollHeight;
+    requestAnimationFrame(() => {
+      if (terminalBody) terminalBody.scrollTop = terminalBody.scrollHeight;
+      if (terminalInput) terminalInput.focus();
+    });
   };
 
   const handleTerminalCommand = (rawInput) => {
@@ -826,6 +877,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (cmd === 'clear') {
       if (terminalOutput) terminalOutput.innerHTML = '';
+      if (terminalBody) terminalBody.scrollTop = 0;
+      if (terminalInput) terminalInput.focus();
       return;
     }
 
@@ -1045,6 +1098,17 @@ Contact & Links:
 
     printTermOutput(input, `Command not found: '${escapeHTML(cmd)}'. Type <span class="term-highlight">'help'</span> for available commands, or <span class="term-highlight">'gui'</span> to return to graphical view.`, true);
   };
+
+  document.querySelectorAll('.term-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cmd = chip.getAttribute('data-cmd');
+      if (cmd) {
+        if (terminalInput) terminalInput.value = '';
+        handleTerminalCommand(cmd);
+      }
+    });
+  });
 
   if (terminalInput) {
     terminalInput.addEventListener('keydown', (e) => {
