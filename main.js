@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return '';
     const now = new Date();
-    const diffInSeconds = Math.floor((now - date) / 1000);
+    const diffInSeconds = Math.max(0, Math.floor((now - date) / 1000));
 
     if (diffInSeconds < 60) return 'Updated just now';
     const diffInMinutes = Math.floor(diffInSeconds / 60);
@@ -37,6 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const showToast = (message) => {
     const toastContainer = document.getElementById('toast-container');
     if (!toastContainer) return;
+
+    while (toastContainer.children.length >= 3) {
+      toastContainer.firstElementChild.remove();
+    }
+
     const toast = document.createElement('div');
     toast.className = 'toast-item';
     toast.innerHTML = `
@@ -159,9 +164,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  const darkModeMQ = window.matchMedia('(prefers-color-scheme: dark)');
+  const handleSystemThemeChange = () => {
     if (currentSetting === 'system') applyTheme('system');
-  });
+  };
+  if (darkModeMQ.addEventListener) {
+    darkModeMQ.addEventListener('change', handleSystemThemeChange);
+  } else if (darkModeMQ.addListener) {
+    darkModeMQ.addListener(handleSystemThemeChange);
+  }
 
   const hamburger = document.getElementById('hamburger');
   const mobileMenu = document.getElementById('mobile-menu');
@@ -201,6 +212,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const navLinks = document.querySelectorAll('.nav-links a, .mobile-menu a');
 
   const updateActiveNavLink = () => {
+    const isAtBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 30);
+    if (isAtBottom && sections.length > 0) {
+      const lastId = sections[sections.length - 1].getAttribute('id');
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === `#${lastId}`);
+      });
+      return;
+    }
+
     const scrollPos = window.scrollY + 120;
     sections.forEach(sec => {
       const top = sec.offsetTop;
@@ -208,11 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const id = sec.getAttribute('id');
       if (scrollPos >= top && scrollPos < top + height) {
         navLinks.forEach(link => {
-          if (link.getAttribute('href') === `#${id}`) {
-            link.classList.add('active');
-          } else {
-            link.classList.remove('active');
-          }
+          link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
         });
       }
     });
@@ -224,13 +240,18 @@ document.addEventListener('DOMContentLoaded', () => {
     anchor.addEventListener('click', (e) => {
       const targetId = anchor.getAttribute('href');
       if (targetId && targetId !== '#') {
-        const targetEl = document.querySelector(targetId);
-        if (targetEl) {
-          e.preventDefault();
-          const navHeight = document.querySelector('.navbar')?.offsetHeight || 60;
-          const targetPos = targetEl.getBoundingClientRect().top + window.pageYOffset - navHeight - 16;
-          window.scrollTo({ top: targetPos, behavior: 'smooth' });
-        }
+        try {
+          const targetEl = document.querySelector(targetId);
+          if (targetEl) {
+            e.preventDefault();
+            if (currentPortfolioMode === 'terminal') {
+              setPortfolioMode('gui', false, true);
+            }
+            const navHeight = document.querySelector('.navbar')?.offsetHeight || 60;
+            const targetPos = targetEl.getBoundingClientRect().top + window.pageYOffset - navHeight - 16;
+            window.scrollTo({ top: targetPos, behavior: 'smooth' });
+          }
+        } catch (err) {}
       }
     });
   });
@@ -714,7 +735,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const validCommands = [
     'help', 'about', 'bio', 'skills', 'stats', 'repos', 'projects',
     'ls', 'dir', 'cat', 'neofetch', 'whoami', 'contact', 'social',
-    'date', 'echo', 'sudo', 'matrix', 'theme', 'clear', 'gui', 'exit', 'quit'
+    'date', 'echo', 'sudo', 'matrix', 'theme', 'history', 'clear', 'cls', 'gui', 'exit', 'quit'
   ];
 
   const triggerSmoothTransition = (callback) => {
@@ -859,11 +880,11 @@ document.addEventListener('DOMContentLoaded', () => {
     termHistory.push(input);
     termHistoryIndex = termHistory.length;
 
-    const parts = input.split(' ');
+    const parts = input.split(/\s+/);
     const cmd = parts[0].toLowerCase();
     const args = parts.slice(1);
 
-    if (cmd === 'clear') {
+    if (cmd === 'clear' || cmd === 'cls') {
       if (terminalOutput) terminalOutput.innerHTML = '';
       if (terminalBody) terminalBody.scrollTop = 0;
       if (terminalInput) terminalInput.focus();
@@ -965,10 +986,11 @@ Available Commands:
   <span class="term-highlight">cat &lt;file&gt;</span>        - Read file (e.g. cat about.md, cat skills.txt)
   <span class="term-highlight">neofetch</span>          - System architecture overview
   <span class="term-highlight">theme &lt;mode&gt;</span>      - Switch UI theme (light | dark | system)
+  <span class="term-highlight">history</span>           - Show recent command history
   <span class="term-highlight">whoami</span>            - Current user identity
   <span class="term-highlight">date</span>              - Output current timestamp
   <span class="term-highlight">matrix</span>            - Digital matrix stream
-  <span class="term-highlight">clear</span>             - Clear terminal screen
+  <span class="term-highlight">clear / cls</span>        - Clear terminal screen
   <span class="term-highlight">gui / exit</span>        - Return to standard Graphical Portfolio view
 
 Navigation: Press [Esc] or click 'Return to GUI' in the Mode Bar anytime.
@@ -1015,11 +1037,21 @@ GitHub Analytics Metrics:
 
     if (cmd === 'repos' || cmd === 'projects') {
       if (allRepos.length === 0) {
-        printTermOutput(input, 'Fetching repository catalog from GitHub API...');
+        printTermOutput(input, 'No repositories loaded (API rate-limited or offline). Try again in a moment or visit <a href="https://github.com/TurboRx" target="_blank" class="term-link">https://github.com/TurboRx</a>.');
         return;
       }
       const repoList = allRepos.slice(0, 10).map((r, i) => `  [${i + 1}] <a href="${r.html_url}" target="_blank" class="term-link">${escapeHTML(r.name)}</a> (${r.language || 'Code'}) ★ ${r.stargazers_count}\n      ${escapeHTML(r.description || 'No description provided')}`).join('\n\n');
       printTermOutput(input, `Showing top repositories (click to open):\n\n${repoList}`);
+      return;
+    }
+
+    if (cmd === 'history') {
+      if (termHistory.length === 0) {
+        printTermOutput(input, 'No commands in history.');
+        return;
+      }
+      const histList = termHistory.map((h, i) => `  ${i + 1}  ${escapeHTML(h)}`).join('\n');
+      printTermOutput(input, `Command History:\n${histList}`);
       return;
     }
 
@@ -1075,6 +1107,7 @@ Contact & Links:
     if (cmd === 'theme') {
       const mode = args[0]?.toLowerCase();
       if (['light', 'dark', 'system'].includes(mode)) {
+        currentSetting = mode;
         applyTheme(mode);
         try { localStorage.setItem('theme', mode); } catch (e) {}
         printTermOutput(input, `<span class="term-success">Theme updated to ${mode} mode.</span>`);
@@ -1135,6 +1168,10 @@ Contact & Links:
 
   if (terminalInput) {
     terminalInput.addEventListener('keydown', (e) => {
+      if (isQuickTyping) {
+        e.preventDefault();
+        return;
+      }
       if (e.key === 'Enter') {
         const val = terminalInput.value;
         terminalInput.value = '';
@@ -1158,6 +1195,31 @@ Contact & Links:
         e.preventDefault();
         const current = terminalInput.value.trim().toLowerCase();
         if (!current) return;
+
+        if (current.startsWith('cat ')) {
+          const catArg = current.slice(4).trim();
+          const virtualFiles = ['about.md', 'skills.txt', 'stats.json', 'contact.md'];
+          const fileMatches = virtualFiles.filter(f => f.startsWith(catArg));
+          if (fileMatches.length === 1) {
+            terminalInput.value = `cat ${fileMatches[0]}`;
+          } else if (fileMatches.length > 1) {
+            printTermOutput(current, `Possible files:\n  ${fileMatches.join('  ')}`);
+          }
+          return;
+        }
+
+        if (current.startsWith('theme ')) {
+          const themeArg = current.slice(6).trim();
+          const themeOpts = ['light', 'dark', 'system'];
+          const themeMatches = themeOpts.filter(t => t.startsWith(themeArg));
+          if (themeMatches.length === 1) {
+            terminalInput.value = `theme ${themeMatches[0]}`;
+          } else if (themeMatches.length > 1) {
+            printTermOutput(current, `Possible themes:\n  ${themeMatches.join('  ')}`);
+          }
+          return;
+        }
+
         const matches = validCommands.filter(c => c.startsWith(current));
         if (matches.length === 1) {
           terminalInput.value = matches[0];
@@ -1181,6 +1243,14 @@ Contact & Links:
       setPortfolioMode(currentPortfolioMode === 'terminal' ? 'gui' : 'terminal');
     } else if (e.key === 'Escape') {
       closeCmdPalette();
+      if (themeDropdown && themeDropdown.classList.contains('show')) {
+        themeDropdown.classList.remove('show');
+        if (themeToggleBtn) themeToggleBtn.setAttribute('aria-expanded', 'false');
+      }
+      if (mobileMenu && mobileMenu.classList.contains('active')) {
+        mobileMenu.classList.remove('active');
+        if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
+      }
       if (currentPortfolioMode === 'terminal' || (terminalModal && terminalModal.classList.contains('show'))) {
         setPortfolioMode('gui');
       }
