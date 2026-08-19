@@ -2,11 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const username = 'TurboRx';
   const CACHE_TTL_MS = 10 * 60 * 1000;
 
-  // Set Current Year
   const yearEl = document.getElementById('current-year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-  // Helper: XSS Sanitization
   const escapeHTML = (str) => {
     if (!str) return '';
     return String(str)
@@ -17,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/'/g, '&#039;');
   };
 
-  // Helper: Relative Time Formatter
   const formatRelativeTime = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -37,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return `Updated ${Math.floor(diffInMonths / 12)}y ago`;
   };
 
-  // Helper: Toast Notifications System
   const showToast = (message) => {
     const toastContainer = document.getElementById('toast-container');
     if (!toastContainer) return;
@@ -56,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3000);
   };
 
-  // Helper: localStorage Cache
   const getCachedData = (key) => {
     try {
       const cached = localStorage.getItem(`tr_cache_${key}`);
@@ -78,12 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
         timestamp: Date.now(),
         data
       }));
-    } catch (e) {
-      // Ignore quota errors
-    }
+    } catch (e) {}
   };
 
-  // Helper: Count-Up Animation
   const animateCount = (element, targetValue) => {
     const duration = 1200;
     const startTime = performance.now();
@@ -103,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(step);
   };
 
-  // --- Theme Toggle Logic ---
   const themeToggleBtn = document.getElementById('theme-toggle-btn');
   const themeDropdown = document.getElementById('theme-dropdown');
   const themeIconActive = document.getElementById('theme-icon-active');
@@ -163,9 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentSetting = btn.dataset.themeVal;
       try {
         localStorage.setItem('theme', currentSetting);
-      } catch (e) {
-        // Ignore quota or security errors
-      }
+      } catch (e) {}
       applyTheme(currentSetting);
     });
   });
@@ -174,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentSetting === 'system') applyTheme('system');
   });
 
-  // --- Mobile Hamburger Menu Logic ---
   const hamburger = document.getElementById('hamburger');
   const mobileMenu = document.getElementById('mobile-menu');
   if (hamburger && mobileMenu) {
@@ -195,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Back to Top Button ---
   const backToTopBtn = document.getElementById('back-to-top-btn');
   if (backToTopBtn) {
     window.addEventListener('scroll', () => {
@@ -210,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Smooth Scroll & Active Nav Spy ---
   const sections = document.querySelectorAll('main > section[id]');
   const navLinks = document.querySelectorAll('.nav-links a, .mobile-menu a');
 
@@ -234,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', updateActiveNavLink, { passive: true });
   updateActiveNavLink();
 
-  // Smooth scroll with navbar offset on anchor clicks
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', (e) => {
       const targetId = anchor.getAttribute('href');
@@ -250,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- Scroll Animations (IntersectionObserver) ---
   const observerOptions = { threshold: 0.12, rootMargin: '0px 0px -40px 0px' };
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -263,7 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-  // --- Fetch GitHub User Profile Data ---
   const cachedUser = getCachedData('user_profile');
 
   const updateUserUI = (data) => {
@@ -295,7 +278,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (reposEl) animateCount(reposEl, data.public_repos || 0);
     if (followersEl) animateCount(followersEl, data.followers || 0);
     
-    // Member Since Metric Card
     if (sinceEl && data.created_at) {
       const createdYear = new Date(data.created_at).getFullYear();
       sinceEl.textContent = createdYear;
@@ -321,7 +303,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  // --- Repositories State, Sorting & Filtering ---
   let allRepos = [];
   let filteredRepos = [];
   let visibleCount = 8;
@@ -506,7 +487,6 @@ document.addEventListener('DOMContentLoaded', () => {
       reposGrid.appendChild(createRepoCard(repo));
     });
 
-    // Dynamic Filter Counter Update
     if (filterCounter) {
       const currentlyShowing = Math.min(visibleCount, filteredRepos.length);
       filterCounter.textContent = `Showing ${currentlyShowing} of ${filteredRepos.length} public repositories`;
@@ -588,7 +568,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  // Event Listeners for Filter, Search & Sort
   if (searchInput) searchInput.addEventListener('input', filterAndSortRepos);
   if (languageSelect) languageSelect.addEventListener('change', filterAndSortRepos);
   if (sortSelect) sortSelect.addEventListener('change', filterAndSortRepos);
@@ -600,7 +579,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Command Palette Modal Logic ---
   const cmdModal = document.getElementById('cmd-palette-modal');
   const cmdTrigger = document.getElementById('cmd-k-trigger');
   const cmdBackdrop = document.getElementById('cmd-palette-backdrop');
@@ -608,11 +586,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const cmdResults = document.getElementById('cmd-palette-results');
 
   const defaultCommands = [
+    { title: 'Switch to Terminal Mode', desc: 'Transform entire portfolio into interactive terminal', action: () => setPortfolioMode('terminal') },
+    { title: 'Switch to GUI Mode', desc: 'Return to standard graphical portfolio view', action: () => setPortfolioMode('gui') },
     { title: 'Scroll to About', desc: 'Go to hero section', action: () => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }) },
     { title: 'Scroll to Skills', desc: 'View tech stack', action: () => document.getElementById('skills')?.scrollIntoView({ behavior: 'smooth' }) },
     { title: 'Scroll to Stats', desc: 'View GitHub metrics', action: () => document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' }) },
     { title: 'Scroll to Repositories', desc: 'View repository grid', action: () => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }) },
-    { title: 'Open Interactive CLI Terminal', desc: 'Launch terminal emulator mode', action: () => openTerminal() },
     { title: 'Switch to Light Theme', desc: 'Set light mode', action: () => { applyTheme('light'); try { localStorage.setItem('theme', 'light'); } catch(e){} } },
     { title: 'Switch to Dark Theme', desc: 'Set dark mode', action: () => { applyTheme('dark'); try { localStorage.setItem('theme', 'dark'); } catch(e){} } },
     { title: 'Copy GitHub Profile URL', desc: 'Copy link to clipboard', action: () => { navigator.clipboard.writeText(`https://github.com/${username}`); showToast('Copied GitHub profile URL!'); } },
@@ -723,7 +702,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Interactive CLI Terminal Logic ---
   const terminalModal = document.getElementById('terminal-modal');
   const terminalTrigger = document.getElementById('terminal-trigger');
   const terminalCloseBtn = document.getElementById('terminal-close-btn');
@@ -731,36 +709,97 @@ document.addEventListener('DOMContentLoaded', () => {
   const terminalInput = document.getElementById('terminal-input');
   const terminalOutput = document.getElementById('terminal-output');
   const terminalBody = document.getElementById('terminal-body');
+  const modeGuiBtn = document.getElementById('mode-gui-btn');
+  const termReturnGuiBtn = document.getElementById('term-return-gui-btn');
+  const mobileTermTrigger = document.getElementById('mobile-term-trigger');
+  const termClearDot = document.getElementById('terminal-clear-dot');
+  const termFullscreenDot = document.getElementById('terminal-fullscreen-dot');
 
+  let currentPortfolioMode = 'gui';
   const termHistory = [];
   let termHistoryIndex = -1;
 
   const validCommands = [
-    'help', 'about', 'skills', 'stats', 'repos', 'neofetch',
-    'whoami', 'contact', 'date', 'echo', 'sudo', 'matrix',
-    'theme', 'clear', 'exit', 'quit'
+    'help', 'about', 'bio', 'skills', 'stats', 'repos', 'projects',
+    'ls', 'dir', 'cat', 'neofetch', 'whoami', 'contact', 'social',
+    'date', 'echo', 'sudo', 'matrix', 'theme', 'clear', 'gui', 'exit', 'quit'
   ];
 
-  const openTerminal = () => {
-    if (!terminalModal) return;
-    terminalModal.classList.add('show');
-    terminalModal.setAttribute('aria-hidden', 'false');
-    if (terminalInput) {
-      terminalInput.value = '';
-      terminalInput.focus();
+  const setPortfolioMode = (mode, notify = true) => {
+    currentPortfolioMode = mode;
+
+    if (mode === 'terminal') {
+      document.body.classList.add('terminal-mode-active');
+      if (terminalModal) {
+        terminalModal.classList.add('show');
+        terminalModal.setAttribute('aria-hidden', 'false');
+      }
+      if (modeGuiBtn) {
+        modeGuiBtn.classList.remove('active');
+        modeGuiBtn.setAttribute('aria-checked', 'false');
+      }
+      if (terminalTrigger) {
+        terminalTrigger.classList.add('active');
+        terminalTrigger.setAttribute('aria-checked', 'true');
+      }
+      if (terminalInput) {
+        terminalInput.focus();
+      }
+      if (notify) showToast('Switched to Terminal Mode');
+    } else {
+      document.body.classList.remove('terminal-mode-active');
+      if (terminalModal) {
+        terminalModal.classList.remove('show');
+        terminalModal.setAttribute('aria-hidden', 'true');
+      }
+      if (modeGuiBtn) {
+        modeGuiBtn.classList.add('active');
+        modeGuiBtn.setAttribute('aria-checked', 'true');
+      }
+      if (terminalTrigger) {
+        terminalTrigger.classList.remove('active');
+        terminalTrigger.setAttribute('aria-checked', 'false');
+      }
+      if (window.location.hash === '#terminal') {
+        history.replaceState(null, null, ' ');
+      }
+      if (notify) showToast('Switched to GUI Mode');
     }
   };
 
-  const closeTerminal = () => {
-    if (!terminalModal) return;
-    terminalModal.classList.remove('show');
-    terminalModal.setAttribute('aria-hidden', 'true');
-    showToast('Terminal session exited.');
-  };
+  const openTerminal = () => setPortfolioMode('terminal');
+  const closeTerminal = () => setPortfolioMode('gui');
 
-  if (terminalTrigger) terminalTrigger.addEventListener('click', openTerminal);
-  if (terminalCloseBtn) terminalCloseBtn.addEventListener('click', closeTerminal);
-  if (terminalBackdrop) terminalBackdrop.addEventListener('click', closeTerminal);
+  if (modeGuiBtn) modeGuiBtn.addEventListener('click', () => setPortfolioMode('gui'));
+  if (terminalTrigger) terminalTrigger.addEventListener('click', () => setPortfolioMode('terminal'));
+  if (termReturnGuiBtn) termReturnGuiBtn.addEventListener('click', () => setPortfolioMode('gui'));
+  if (terminalCloseBtn) terminalCloseBtn.addEventListener('click', () => setPortfolioMode('gui'));
+  if (terminalBackdrop) terminalBackdrop.addEventListener('click', () => setPortfolioMode('gui'));
+
+  if (mobileTermTrigger) {
+    mobileTermTrigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeMobileMenu();
+      setPortfolioMode('terminal');
+    });
+  }
+
+  if (termClearDot) {
+    termClearDot.addEventListener('click', () => {
+      if (terminalOutput) terminalOutput.innerHTML = '';
+      showToast('Terminal cleared');
+    });
+  }
+
+  if (termFullscreenDot) {
+    termFullscreenDot.addEventListener('click', () => {
+      document.body.classList.toggle('terminal-mode-active');
+    });
+  }
+
+  if (window.location.hash === '#terminal') {
+    setPortfolioMode('terminal', false);
+  }
 
   const printTermOutput = (cmdText, resultHTML, isError = false) => {
     if (!terminalOutput) return;
@@ -790,38 +829,118 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (cmd === 'exit' || cmd === 'quit') {
-      closeTerminal();
+    if (cmd === 'exit' || cmd === 'quit' || cmd === 'gui') {
+      setPortfolioMode('gui');
       return;
     }
 
-    if (cmd === 'help') {
+    if (cmd === 'ls' || cmd === 'dir') {
+      const target = args[0]?.toLowerCase();
+      if (!target || target === '.' || target === './') {
+        printTermOutput(input, `
+<span class="term-highlight">about.md</span>       <span class="term-highlight">skills.txt</span>     <span class="term-success">projects/</span>      <span class="term-highlight">stats.json</span>     <span class="term-highlight">contact.md</span>
+        `);
+        return;
+      }
+      if (target === 'projects' || target === 'projects/' || target === './projects') {
+        if (allRepos.length === 0) {
+          printTermOutput(input, 'projects/ is empty or still fetching from GitHub API.');
+          return;
+        }
+        const repoList = allRepos.map(r => `  <span class="term-success">${escapeHTML(r.name)}/</span> (${r.language || 'Code'})`).join('\n');
+        printTermOutput(input, `projects/ contents:\n${repoList}`);
+        return;
+      }
+      printTermOutput(input, `ls: cannot access '${escapeHTML(target)}': No such file or directory`, true);
+      return;
+    }
+
+    if (cmd === 'cat') {
+      const file = args[0]?.toLowerCase();
+      if (!file) {
+        printTermOutput(input, `Usage: cat &lt;filename&gt; (e.g. cat about.md, cat skills.txt, cat stats.json, cat contact.md)`, true);
+        return;
+      }
+      if (file === 'about.md' || file === 'about') {
+        printTermOutput(input, `
+# TurboRx — Systems Programmer
+Hello 👋 I'm TurboRx, a Self-taught Systems Programmer — building close to the metal in C & Rust.
+
+- GitHub:    <a href="https://github.com/TurboRx" target="_blank" class="term-link">https://github.com/TurboRx</a>
+- Portfolio: <a href="https://turborx.pages.dev" target="_blank" class="term-link">https://turborx.pages.dev</a>
+        `);
+        return;
+      }
+      if (file === 'skills.txt' || file === 'skills') {
+        printTermOutput(input, `
+Technical Stack & Tooling:
+===========================
+[Systems & Low-Level]  C, Rust
+[Web & Scripting]      JavaScript, TypeScript, Python, HTML5, CSS3, React, Node.js
+[DevOps & Tools]       Git & GitHub, Docker, Linux, REST APIs
+        `);
+        return;
+      }
+      if (file === 'stats.json' || file === 'stats') {
+        const stars = document.getElementById('metric-stars')?.textContent || '0';
+        const repos = document.getElementById('metric-repos')?.textContent || '0';
+        const followers = document.getElementById('metric-followers')?.textContent || '0';
+        const forks = document.getElementById('metric-forks')?.textContent || '0';
+        const since = document.getElementById('metric-since')?.textContent || '-';
+        printTermOutput(input, `
+{
+  "developer": "TurboRx",
+  "total_stars": ${JSON.stringify(stars)},
+  "public_repositories": ${JSON.stringify(repos)},
+  "followers": ${JSON.stringify(followers)},
+  "total_forks": ${JSON.stringify(forks)},
+  "member_since": ${JSON.stringify(since)}
+}
+        `);
+        return;
+      }
+      if (file === 'contact.md' || file === 'contact') {
+        printTermOutput(input, `
+Contact & Profiles:
+- GitHub:    <a href="https://github.com/TurboRx" target="_blank" class="term-link">https://github.com/TurboRx</a>
+- Portfolio: <a href="https://turborx.pages.dev" target="_blank" class="term-link">https://turborx.pages.dev</a>
+        `);
+        return;
+      }
+      printTermOutput(input, `cat: ${escapeHTML(file)}: No such file`, true);
+      return;
+    }
+
+    if (cmd === 'help' || cmd === 'commands') {
       printTermOutput(input, `
 Available Commands:
-  <span class="term-highlight">help</span>       - Display this system command catalog
-  <span class="term-highlight">about</span>      - Print developer intro & profile
-  <span class="term-highlight">skills</span>     - List core technical stack & tools
-  <span class="term-highlight">stats</span>      - Print live GitHub analytics metrics
-  <span class="term-highlight">repos</span>      - List public GitHub repositories
-  <span class="term-highlight">neofetch</span>   - Display system architecture overview
-  <span class="term-highlight">whoami</span>     - Print current terminal user identity
-  <span class="term-highlight">contact</span>    - Print developer contact & web links
-  <span class="term-highlight">theme</span>      - Switch UI theme (usage: theme light | dark | system)
-  <span class="term-highlight">date</span>       - Output current timestamp
-  <span class="term-highlight">clear</span>      - Clear terminal screen
-  <span class="term-highlight">exit</span>       - Exit and close the terminal shell
+  <span class="term-highlight">help</span>              - Display command catalog
+  <span class="term-highlight">about</span>             - Developer bio & intro
+  <span class="term-highlight">skills</span>            - Core systems & web technical stack
+  <span class="term-highlight">projects / repos</span>  - List GitHub projects with clickable links
+  <span class="term-highlight">stats</span>             - Live GitHub analytics & metrics
+  <span class="term-highlight">contact</span>           - Contact info & profile links
+  <span class="term-highlight">ls</span>                - List virtual directories and documents
+  <span class="term-highlight">cat &lt;file&gt;</span>        - Read file (e.g. cat about.md, cat skills.txt)
+  <span class="term-highlight">neofetch</span>          - System architecture overview
+  <span class="term-highlight">theme &lt;mode&gt;</span>      - Switch UI theme (light | dark | system)
+  <span class="term-highlight">whoami</span>            - Current user identity
+  <span class="term-highlight">date</span>              - Output current timestamp
+  <span class="term-highlight">matrix</span>            - Digital matrix stream
+  <span class="term-highlight">clear</span>             - Clear terminal screen
+  <span class="term-highlight">gui / exit</span>        - Return to standard Graphical Portfolio view
 
-Type 'exit' or press [Esc] to exit the terminal at any time.
+Navigation: Press [Esc] or click 'Return to GUI' in the Mode Bar anytime.
       `);
       return;
     }
 
     if (cmd === 'about' || cmd === 'bio') {
       printTermOutput(input, `
-TurboRx - Systems Programmer
+TurboRx — Systems Programmer
 Hello 👋 I'm TurboRx, a Self-taught Systems Programmer — building close to the metal in C & Rust.
-GitHub Profile: https://github.com/TurboRx
-Portfolio URL: https://turborx.pages.dev
+GitHub:    <a href="https://github.com/TurboRx" target="_blank" class="term-link">https://github.com/TurboRx</a>
+Portfolio: <a href="https://turborx.pages.dev" target="_blank" class="term-link">https://turborx.pages.dev</a>
       `);
       return;
     }
@@ -829,9 +948,9 @@ Portfolio URL: https://turborx.pages.dev
     if (cmd === 'skills') {
       printTermOutput(input, `
 Technical Stack & Tooling:
-  [Systems & Low-Level] C, Rust
-  [Web & Scripting]     JavaScript, TypeScript, Python, HTML5, CSS3, React, Node.js
-  [DevOps & Tools]      Git & GitHub, Docker, Linux, REST APIs
+  [Systems & Low-Level]  C, Rust
+  [Web & Scripting]      JavaScript, TypeScript, Python, HTML5, CSS3, React, Node.js
+  [DevOps & Tools]       Git & GitHub, Docker, Linux, REST APIs
       `);
       return;
     }
@@ -858,8 +977,8 @@ GitHub Analytics Metrics:
         printTermOutput(input, 'Fetching repository catalog from GitHub API...');
         return;
       }
-      const repoList = allRepos.slice(0, 10).map((r, i) => `  [${i + 1}] <span class="term-highlight">${escapeHTML(r.name)}</span> (${r.language || 'Code'}) - ${escapeHTML(r.description || 'No description')}`).join('\n');
-      printTermOutput(input, `Showing top repositories:\n${repoList}`);
+      const repoList = allRepos.slice(0, 10).map((r, i) => `  [${i + 1}] <a href="${r.html_url}" target="_blank" class="term-link">${escapeHTML(r.name)}</a> (${r.language || 'Code'}) ★ ${r.stargazers_count}\n      ${escapeHTML(r.description || 'No description provided')}`).join('\n\n');
+      printTermOutput(input, `Showing top repositories (click to open):\n\n${repoList}`);
       return;
     }
 
@@ -869,9 +988,9 @@ GitHub Analytics Metrics:
 <span class="term-highlight">       .-.      </span>  <span class="term-success">turborx@portfolio</span>
 <span class="term-highlight">      (   )     </span>  ------------------
 <span class="term-highlight">     .-' '-------</span>  <span class="term-highlight">OS:</span> Cloudflare Pages Edge (Linux)
-<span class="term-highlight">    (           )</span> <span class="term-highlight">Host:</span> TurboRx Personal Web Shell
-<span class="term-highlight">     '-. .-------</span> <span class="term-highlight">Kernel:</span> 5.15.0-apishift-x86_64
-<span class="term-highlight">      (   )     </span>  <span class="term-highlight">Shell:</span> zsh 5.9 (x86_64-pc-linux-gnu)
+<span class="term-highlight">    (           )</span> <span class="term-highlight">Host:</span> TurboRx Interactive Web Shell
+<span class="term-highlight">     '-. .-------</span> <span class="term-highlight">Languages:</span> C, Rust, JS, TS, Python
+<span class="term-highlight">      (   )     </span>  <span class="term-highlight">Shell:</span> zsh (Interactive Mode)
 <span class="term-highlight">       '-'      </span>  <span class="term-highlight">Theme:</span> ${currentTheme}
                   <span class="term-highlight">Stack:</span> Vanilla JS, CSS3, HTML5
       `);
@@ -886,8 +1005,8 @@ GitHub Analytics Metrics:
     if (cmd === 'contact' || cmd === 'social') {
       printTermOutput(input, `
 Contact & Links:
-  GitHub:    https://github.com/TurboRx
-  Portfolio: https://turborx.pages.dev
+  GitHub:    <a href="https://github.com/TurboRx" target="_blank" class="term-link">https://github.com/TurboRx</a>
+  Portfolio: <a href="https://turborx.pages.dev" target="_blank" class="term-link">https://turborx.pages.dev</a>
       `);
       return;
     }
@@ -903,7 +1022,7 @@ Contact & Links:
     }
 
     if (cmd === 'sudo') {
-      printTermOutput(input, `Permission denied: TurboRx is the only root administrator.`, true);
+      printTermOutput(input, `Permission denied: TurboRx is the root administrator.`, true);
       return;
     }
 
@@ -924,7 +1043,7 @@ Contact & Links:
       return;
     }
 
-    printTermOutput(input, `Command not found: '${escapeHTML(cmd)}'. Type <span class="term-highlight">'help'</span> for available commands, or <span class="term-highlight">'exit'</span> to close terminal.`, true);
+    printTermOutput(input, `Command not found: '${escapeHTML(cmd)}'. Type <span class="term-highlight">'help'</span> for available commands, or <span class="term-highlight">'gui'</span> to return to graphical view.`, true);
   };
 
   if (terminalInput) {
@@ -972,10 +1091,12 @@ Contact & Links:
       }
     } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 't') {
       e.preventDefault();
-      openTerminal();
+      setPortfolioMode(currentPortfolioMode === 'terminal' ? 'gui' : 'terminal');
     } else if (e.key === 'Escape') {
       closeCmdPalette();
-      closeTerminal();
+      if (currentPortfolioMode === 'terminal' || (terminalModal && terminalModal.classList.contains('show'))) {
+        setPortfolioMode('gui');
+      }
     }
   });
 });

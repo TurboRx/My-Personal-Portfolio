@@ -6,7 +6,6 @@
   <title>TurboRx - Developer Portfolio</title>
   <meta name="description" content="Personal portfolio, open-source projects, and metrics of TurboRx." />
   
-  <!-- Open Graph & Social Meta Tags -->
   <meta property="og:title" content="TurboRx - Developer Portfolio" />
   <meta property="og:description" content="Personal portfolio and open-source projects by TurboRx." />
   <meta property="og:image" content="https://github.com/TurboRx.png" />
@@ -16,7 +15,6 @@
   <meta name="twitter:description" content="Personal portfolio and open-source projects by TurboRx." />
   <meta name="twitter:image" content="https://github.com/TurboRx.png" />
 
-  <!-- SVG Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ededed' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,10 +46,16 @@
           <kbd class="cmd-k-kbd">Ctrl K</kbd>
         </button>
 
-        <button id="terminal-trigger" class="cmd-k-btn" title="Open Interactive Terminal" aria-label="Open Interactive Terminal">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-          <span class="cmd-k-text">CLI</span>
-        </button>
+        <div class="mode-switcher" id="mode-switcher" role="radiogroup" aria-label="Portfolio View Mode">
+          <button class="mode-btn active" id="mode-gui-btn" data-mode="gui" title="Standard Graphical View" aria-checked="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            <span>GUI</span>
+          </button>
+          <button class="mode-btn" id="terminal-trigger" data-mode="terminal" title="Switch to Full Terminal Mode" aria-checked="false">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            <span>CLI</span>
+          </button>
+        </div>
 
         <div class="theme-switcher">
           <button id="theme-toggle-btn" class="theme-toggle" title="Change Theme" aria-label="Toggle color theme" aria-haspopup="true" aria-expanded="false">
@@ -80,12 +84,15 @@
     </div>
   </header>
 
-  <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobile-menu">
     <a href="#about">About</a>
     <a href="#skills">Skills</a>
     <a href="#stats">Stats</a>
     <a href="#projects">Projects</a>
+    <a href="#terminal" id="mobile-term-trigger" style="color: var(--focus-ring); display: flex; align-items: center; gap: 0.5rem;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+      <span>Switch to Terminal Mode</span>
+    </a>
   </div>
 
   <main>
@@ -110,7 +117,6 @@
       </div>
     </section>
 
-    <!-- Tech Stack / Skills Section -->
     <section id="skills" class="skills-section section fade-in">
       <div class="section-header">
         <h2>Tech Stack & Tools</h2>
@@ -184,14 +190,12 @@
         </div>
       </div>
 
-      <!-- Language Distribution Component -->
       <div id="language-distribution" class="lang-dist-container" style="display: none;">
         <div class="lang-dist-bar" id="lang-dist-bar"></div>
         <div class="lang-dist-legend" id="lang-dist-legend"></div>
       </div>
 
       <div class="repos-grid" id="repos-grid">
-        <!-- Skeleton loaders rendered by default -->
         <div class="skeleton-card">
           <div class="skeleton skeleton-title"></div>
           <div class="skeleton skeleton-text"></div>
@@ -224,7 +228,6 @@
     </section>
   </main>
 
-  <!-- Command Palette Modal -->
   <div class="cmd-palette-modal" id="cmd-palette-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Command Palette">
     <div class="cmd-palette-backdrop" id="cmd-palette-backdrop"></div>
     <div class="cmd-palette-box">
@@ -240,42 +243,43 @@
     </div>
   </div>
 
-  <!-- Interactive Terminal Modal -->
   <div class="terminal-modal" id="terminal-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Interactive Terminal">
     <div class="terminal-backdrop" id="terminal-backdrop"></div>
     <div class="terminal-box">
-      <div class="terminal-bar">
+      <div class="terminal-bar" id="terminal-bar">
         <div class="terminal-dots">
-          <span class="dot red" id="terminal-close-btn" title="Close Terminal (or type exit)"></span>
-          <span class="dot yellow" title="Minimize"></span>
-          <span class="dot green" title="Maximize"></span>
+          <span class="dot red" id="terminal-close-btn" title="Return to GUI Mode (or type exit)"></span>
+          <span class="dot yellow" id="terminal-clear-dot" title="Clear screen"></span>
+          <span class="dot green" id="terminal-fullscreen-dot" title="Maximize"></span>
         </div>
         <div class="terminal-title">
           <span class="term-badge">zsh</span>
-          turborx@portfolio:~
+          <span class="term-title-text">turborx@portfolio:~</span>
         </div>
         <div class="terminal-actions">
-          <kbd class="cmd-k-kbd">Esc or type 'exit' to close</kbd>
+          <button class="term-mode-return-btn" id="term-return-gui-btn" title="Switch back to GUI View">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            <span>Return to GUI</span>
+          </button>
+          <kbd class="cmd-k-kbd term-esc-hint">Esc or 'gui'</kbd>
         </div>
       </div>
       <div class="terminal-body" id="terminal-body">
         <div class="terminal-welcome">
-          <div class="term-banner-title">TurboRx Interactive Shell v2.5.0</div>
-          <div>Type <span class="term-highlight">'help'</span> for available commands, or type <span class="term-highlight">'exit'</span> to close the terminal.</div>
+          <div class="term-banner-title">TurboRx Interactive Terminal</div>
+          <div class="term-banner-desc">Interactive portfolio shell environment. Type <span class="term-highlight">'help'</span> for available commands, or click <span class="term-highlight">'Return to GUI'</span> to switch back.</div>
         </div>
         <div id="terminal-output"></div>
         <div class="terminal-input-line">
           <span class="term-prompt"><span class="term-prompt-user">turborx</span><span class="term-prompt-at">@</span><span class="term-prompt-host">portfolio</span>:<span class="term-prompt-path">~</span>$</span>
-          <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" aria-label="Terminal command input" placeholder="Type a command..." />
+          <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" aria-label="Terminal command input" placeholder="Type a command (e.g. help, about, skills, repos)..." />
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Toast Notification Container -->
   <div class="toast-container" id="toast-container"></div>
 
-  <!-- Back to Top Floating Button -->
   <button id="back-to-top-btn" class="back-to-top-btn" title="Back to top" aria-label="Back to top">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
   </button>
