@@ -199,19 +199,59 @@ document.addEventListener('DOMContentLoaded', () => {
   const backToTopBtn = document.getElementById('back-to-top-btn');
   if (backToTopBtn) {
     window.addEventListener('scroll', () => {
-      if (window.scrollY > 400) {
+      if (window.scrollY > 350) {
         backToTopBtn.classList.add('visible');
       } else {
         backToTopBtn.classList.remove('visible');
       }
-    });
+    }, { passive: true });
     backToTopBtn.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
 
+  // --- Smooth Scroll & Active Nav Spy ---
+  const sections = document.querySelectorAll('main > section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a, .mobile-menu a');
+
+  const updateActiveNavLink = () => {
+    const scrollPos = window.scrollY + 120;
+    sections.forEach(sec => {
+      const top = sec.offsetTop;
+      const height = sec.offsetHeight;
+      const id = sec.getAttribute('id');
+      if (scrollPos >= top && scrollPos < top + height) {
+        navLinks.forEach(link => {
+          if (link.getAttribute('href') === `#${id}`) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }
+    });
+  };
+  window.addEventListener('scroll', updateActiveNavLink, { passive: true });
+  updateActiveNavLink();
+
+  // Smooth scroll with navbar offset on anchor clicks
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', (e) => {
+      const targetId = anchor.getAttribute('href');
+      if (targetId && targetId !== '#') {
+        const targetEl = document.querySelector(targetId);
+        if (targetEl) {
+          e.preventDefault();
+          const navHeight = document.querySelector('.navbar')?.offsetHeight || 60;
+          const targetPos = targetEl.getBoundingClientRect().top + window.pageYOffset - navHeight - 16;
+          window.scrollTo({ top: targetPos, behavior: 'smooth' });
+        }
+      }
+    });
+  });
+
   // --- Scroll Animations (IntersectionObserver) ---
-  const observerOptions = { threshold: 0.1 };
+  const observerOptions = { threshold: 0.12, rootMargin: '0px 0px -40px 0px' };
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
