@@ -706,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileTermTrigger = document.getElementById('mobile-term-trigger');
   const termClearDot = document.getElementById('terminal-clear-dot');
   const termFullscreenDot = document.getElementById('terminal-fullscreen-dot');
-  const blockyOverlay = document.getElementById('blocky-transition-overlay');
+  const smoothOverlay = document.getElementById('smooth-transition-overlay');
 
   let currentPortfolioMode = 'gui';
   const termHistory = [];
@@ -718,40 +718,31 @@ document.addEventListener('DOMContentLoaded', () => {
     'date', 'echo', 'sudo', 'matrix', 'theme', 'clear', 'gui', 'exit', 'quit'
   ];
 
-  const triggerBlockyTransition = (callback) => {
-    if (!blockyOverlay) {
+  const triggerSmoothTransition = (callback) => {
+    if (!smoothOverlay) {
       if (callback) callback();
       return;
     }
-    const glyphs = ['█', '▓', '▒', '░', '0', '1', '>', '_', '#', '/', '+'];
-    blockyOverlay.innerHTML = '';
-    
-    for (let i = 0; i < 96; i++) {
-      const tile = document.createElement('div');
-      tile.className = 'blocky-tile';
-      tile.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
-      blockyOverlay.appendChild(tile);
-    }
 
-    blockyOverlay.classList.add('active');
-    
-    const tiles = blockyOverlay.children;
-    for (let i = 0; i < tiles.length; i++) {
-      const delay = Math.random() * 80;
-      setTimeout(() => {
-        tiles[i]?.classList.add('revealed');
-      }, delay);
-    }
+    const loaderBar = smoothOverlay.querySelector('.smooth-loader-bar');
+    if (loaderBar) loaderBar.style.width = '0%';
+
+    smoothOverlay.classList.add('active');
+
+    requestAnimationFrame(() => {
+      if (loaderBar) loaderBar.style.width = '70%';
+    });
 
     setTimeout(() => {
+      if (loaderBar) loaderBar.style.width = '100%';
       if (callback) callback();
-    }, 120);
+    }, 140);
 
     setTimeout(() => {
-      blockyOverlay.classList.remove('active');
+      smoothOverlay.classList.remove('active');
       setTimeout(() => {
-        blockyOverlay.innerHTML = '';
-      }, 150);
+        if (loaderBar) loaderBar.style.width = '0%';
+      }, 200);
     }, 280);
   };
 
@@ -800,7 +791,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     if (animate) {
-      triggerBlockyTransition(applyMode);
+      triggerSmoothTransition(applyMode);
     } else {
       applyMode();
     }
@@ -849,6 +840,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const scrollTerminalToBottom = () => {
+    if (!terminalBody) return;
+    requestAnimationFrame(() => {
+      terminalBody.scrollTop = terminalBody.scrollHeight;
+      const inputLine = document.getElementById('terminal-input-line');
+      if (inputLine) {
+        inputLine.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      if (terminalInput) terminalInput.focus();
+    });
+  };
+
   const printTermOutput = (cmdText, resultHTML, isError = false) => {
     if (!terminalOutput) return;
     const entry = document.createElement('div');
@@ -858,10 +861,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="${isError ? 'term-error' : 'term-out'}">${resultHTML}</div>
     `;
     terminalOutput.appendChild(entry);
-    requestAnimationFrame(() => {
-      if (terminalBody) terminalBody.scrollTop = terminalBody.scrollHeight;
-      if (terminalInput) terminalInput.focus();
-    });
+    scrollTerminalToBottom();
   };
 
   const handleTerminalCommand = (rawInput) => {
@@ -1099,13 +1099,48 @@ Contact & Links:
     printTermOutput(input, `Command not found: '${escapeHTML(cmd)}'. Type <span class="term-highlight">'help'</span> for available commands, or <span class="term-highlight">'gui'</span> to return to graphical view.`, true);
   };
 
+  let isQuickTyping = false;
+
+  const typeAndExecuteCommand = (cmd) => {
+    if (!cmd || isQuickTyping) return;
+    isQuickTyping = true;
+
+    const chips = document.querySelectorAll('.term-chip');
+    chips.forEach(c => c.setAttribute('disabled', 'true'));
+
+    if (terminalInput) {
+      terminalInput.value = '';
+      terminalInput.focus();
+    }
+
+    let i = 0;
+    const typeNextChar = () => {
+      if (i < cmd.length) {
+        if (terminalInput) {
+          terminalInput.value += cmd.charAt(i);
+          scrollTerminalToBottom();
+        }
+        i++;
+        setTimeout(typeNextChar, 30 + Math.random() * 20);
+      } else {
+        setTimeout(() => {
+          if (terminalInput) terminalInput.value = '';
+          handleTerminalCommand(cmd);
+          chips.forEach(c => c.removeAttribute('disabled'));
+          isQuickTyping = false;
+        }, 100);
+      }
+    };
+
+    typeNextChar();
+  };
+
   document.querySelectorAll('.term-chip').forEach(chip => {
     chip.addEventListener('click', (e) => {
       e.stopPropagation();
       const cmd = chip.getAttribute('data-cmd');
       if (cmd) {
-        if (terminalInput) terminalInput.value = '';
-        handleTerminalCommand(cmd);
+        typeAndExecuteCommand(cmd);
       }
     });
   });
