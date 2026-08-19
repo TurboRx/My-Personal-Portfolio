@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const bioElement = document.getElementById('profile-bio');
     if (bioElement) {
-      bioElement.textContent = "Hello 👋 I'm TurboRx, a passionate developer who loves exploring new technologies and building innovative projects.";
+      bioElement.textContent = "Hello 👋 I'm TurboRx, a Self-taught Systems Programmer — building close to the metal in C & Rust.";
     }
 
     if (data.name) {
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(error => {
         console.error('Error fetching profile:', error);
         const bioElement = document.getElementById('profile-bio');
-        if (bioElement) bioElement.textContent = "I'm TurboRx, a passionate developer who loves exploring new technologies and building innovative projects.";
+        if (bioElement) bioElement.textContent = "Hello 👋 I'm TurboRx, a Self-taught Systems Programmer — building close to the metal in C & Rust.";
       });
   }
 
@@ -778,8 +778,8 @@ Type 'exit' or press [Esc] to exit the terminal at any time.
 
     if (cmd === 'about' || cmd === 'bio') {
       printTermOutput(input, `
-TurboRx - Full Stack Developer
-Hello, I'm TurboRx, a passionate developer who loves exploring new technologies and building innovative projects.
+TurboRx - Systems Programmer
+Hello 👋 I'm TurboRx, a Self-taught Systems Programmer — building close to the metal in C & Rust.
 GitHub Profile: https://github.com/TurboRx
 Portfolio URL: https://turborx.pages.dev
       `);
@@ -789,10 +789,9 @@ Portfolio URL: https://turborx.pages.dev
     if (cmd === 'skills') {
       printTermOutput(input, `
 Technical Stack & Tooling:
-  [Languages]  JavaScript (ES6+), TypeScript, Python, Rust
-  [Frontend]   HTML5, CSS3, React, Next.js, Tailwind CSS
-  [Backend]    Node.js, Prisma, PostgreSQL, REST APIs
-  [DevOps]     Git, GitHub Actions, Docker, Cloudflare Pages
+  [Systems & Low-Level] C, Rust
+  [Web & Scripting]     JavaScript, TypeScript, Python, HTML5, CSS3, React, Node.js
+  [DevOps & Tools]      Git & GitHub, Docker, Linux, REST APIs
       `);
       return;
     }
