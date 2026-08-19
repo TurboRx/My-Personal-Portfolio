@@ -797,9 +797,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const openTerminal = () => setPortfolioMode('terminal');
-  const closeTerminal = () => setPortfolioMode('gui');
-
   if (modeGuiBtn) modeGuiBtn.addEventListener('click', () => setPortfolioMode('gui'));
   if (terminalTrigger) terminalTrigger.addEventListener('click', () => setPortfolioMode('terminal'));
   if (termReturnGuiBtn) termReturnGuiBtn.addEventListener('click', () => setPortfolioMode('gui'));
