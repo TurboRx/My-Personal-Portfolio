@@ -703,7 +703,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const terminalBody = document.getElementById('terminal-body');
   const modeGuiBtn = document.getElementById('mode-gui-btn');
   const termReturnGuiBtn = document.getElementById('term-return-gui-btn');
-  const mobileTermTrigger = document.getElementById('mobile-term-trigger');
   const termClearDot = document.getElementById('terminal-clear-dot');
   const termFullscreenDot = document.getElementById('terminal-fullscreen-dot');
   const smoothOverlay = document.getElementById('smooth-transition-overlay');
@@ -802,14 +801,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (termReturnGuiBtn) termReturnGuiBtn.addEventListener('click', () => setPortfolioMode('gui'));
   if (terminalCloseBtn) terminalCloseBtn.addEventListener('click', () => setPortfolioMode('gui'));
   if (terminalBackdrop) terminalBackdrop.addEventListener('click', () => setPortfolioMode('gui'));
-
-  if (mobileTermTrigger) {
-    mobileTermTrigger.addEventListener('click', (e) => {
-      e.preventDefault();
-      closeMobileMenu();
-      setPortfolioMode('terminal');
-    });
-  }
 
   if (termClearDot) {
     termClearDot.addEventListener('click', () => {
