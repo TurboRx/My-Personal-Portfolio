@@ -1,0 +1,25 @@
+{
+  "name": "my-personal-portfolio",
+  "version": "1.0.0",
+  "description": "A fast, lightweight, and modern personal developer portfolio powered by Vanilla HTML, CSS, and JavaScript with GitHub API integration.",
+  "main": "main.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TurboRx/My-Personal-Portfolio.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/TurboRx/My-Personal-Portfolio/issues"
+  },
+  "homepage": "https://github.com/TurboRx/My-Personal-Portfolio#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}
