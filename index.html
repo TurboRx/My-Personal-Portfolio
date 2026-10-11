@@ -59,7 +59,6 @@
       <symbol id="i-x" viewBox="0 0 24 24"><path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z"/></symbol>
       <symbol id="i-ghidra" viewBox="0 0 24 24"><path d="M12 1.5 3 6v6c0 5.2 3.6 9.3 9 10.5 5.4-1.2 9-5.3 9-10.5V6zm0 2.2 7 3.5v4.8c0 4-2.6 7.2-7 8.4-4.4-1.2-7-4.4-7-8.4V7.2zm.2 3.3c-2.9 0-5 2.1-5 5s2.1 5 5 5c1.6 0 2.9-.6 3.8-1.6V12h-4v1.8h2c-.3.7-1 1.2-1.8 1.2-1.7 0-3-1.3-3-3s1.3-3 3-3c.9 0 1.6.4 2.1 1l1.4-1.3c-.9-1-2.1-1.7-3.5-1.7z"/></symbol>
       <symbol id="i-nmap" viewBox="0 0 24 24"><path d="M12 4C6.5 4 2.2 8 .5 12c1.7 4 6 8 11.5 8s9.8-4 11.5-8C21.8 8 17.5 4 12 4zm0 2c4.2 0 7.7 2.8 9.3 6-1.6 3.2-5.1 6-9.3 6s-7.7-2.8-9.3-6C4.3 8.8 7.8 6 12 6zm0 1.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9zm0 2.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></symbol>
-      <symbol id="i-jax" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6.5 5v9.2a3 3 0 0 1-3 3M8.5 18 12 6l3.5 12M9.5 14h5M17.5 6l5 12M22.5 6l-5 12"/></symbol>
     </defs>
   </svg>
 
@@ -83,17 +82,6 @@
           <span class="cmd-k-text">Search</span>
           <kbd class="cmd-k-kbd">Ctrl K</kbd>
         </button>
-
-        <div class="mode-switcher" id="mode-switcher" role="radiogroup" aria-label="Portfolio view mode">
-          <button class="mode-btn active" id="mode-gui-btn" data-mode="gui" role="radio" title="Graphical view" aria-checked="true">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-            <span>GUI</span>
-          </button>
-          <button class="mode-btn" id="terminal-trigger" data-mode="terminal" role="radio" title="Switch to terminal mode (T)" aria-checked="false">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-            <span>CLI</span>
-          </button>
-        </div>
 
         <div class="theme-switcher">
           <button id="theme-toggle-btn" class="theme-toggle" title="Change theme" aria-label="Change color theme" aria-haspopup="true" aria-expanded="false">
@@ -182,7 +170,7 @@
       <dl class="rows">
         <div class="row">
           <dt>AI/ML and data</dt>
-          <dd><span class="tech" style="--c:#3776AB"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-python"/></svg>Python</span><span class="tech" style="--c:#EE4C2C"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-pytorch"/></svg>PyTorch</span><span class="tech" style="--c:var(--text)"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-jax"/></svg>JAX</span><span class="tech" style="--c:#4DABCF;--c-lt:#2a85a8"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-numpy"/></svg>NumPy</span><span class="tech" style="--c:#FFD21E;--c-lt:#b58f00"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-huggingface"/></svg>Hugging Face</span></dd>
+          <dd><span class="tech" style="--c:#3776AB"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-python"/></svg>Python</span><span class="tech" style="--c:#EE4C2C"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-pytorch"/></svg>PyTorch</span><span class="tech"><img class="tech-logo" src="https://raw.githubusercontent.com/jax-ml/jax/main/images/jax_logo.svg" alt="" width="31" height="18" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.hidden=true" />JAX</span><span class="tech" style="--c:#4DABCF;--c-lt:#2a85a8"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-numpy"/></svg>NumPy</span><span class="tech" style="--c:#FFD21E;--c-lt:#b58f00"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-huggingface"/></svg>Hugging Face</span></dd>
         </div>
         <div class="row">
           <dt>Security and reverse engineering</dt>
@@ -268,59 +256,6 @@
         <span>Use <kbd>↑</kbd> <kbd>↓</kbd> to move, <kbd>↵</kbd> to select</span>
       </div>
     </div>
-  </div>
-
-  <div class="terminal-modal" id="terminal-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Interactive terminal">
-    <div class="terminal-backdrop" id="terminal-backdrop"></div>
-    <div class="terminal-box">
-      <div class="terminal-bar" id="terminal-bar">
-        <div class="terminal-dots">
-          <span class="dot red" id="terminal-close-btn" title="Return to GUI mode (or type exit)"></span>
-          <span class="dot yellow" id="terminal-clear-dot" title="Clear screen"></span>
-          <span class="dot green" id="terminal-fullscreen-dot" title="Toggle fullscreen"></span>
-        </div>
-        <div class="terminal-title">
-          <span class="term-badge">zsh</span>
-          <span class="term-title-text">turborx@portfolio:~</span>
-        </div>
-        <div class="terminal-actions">
-          <button class="term-mode-return-btn" id="term-return-gui-btn" title="Switch back to GUI view">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-            <span>Return to GUI</span>
-          </button>
-          <kbd class="cmd-k-kbd term-esc-hint">Esc or 'gui'</kbd>
-        </div>
-      </div>
-      <div class="terminal-quick-chips" id="terminal-quick-chips">
-        <span class="chips-label">Quick:</span>
-        <button class="term-chip" data-cmd="help">help</button>
-        <button class="term-chip" data-cmd="about">about</button>
-        <button class="term-chip" data-cmd="skills">skills</button>
-        <button class="term-chip" data-cmd="repos">repos</button>
-        <button class="term-chip" data-cmd="stats">stats</button>
-        <button class="term-chip" data-cmd="contact">contact</button>
-        <button class="term-chip" data-cmd="tree">tree</button>
-        <button class="term-chip" data-cmd="neofetch">neofetch</button>
-        <button class="term-chip" data-cmd="clear">clear</button>
-        <button class="term-chip" data-cmd="gui">gui</button>
-      </div>
-      <div class="terminal-body" id="terminal-body">
-        <div class="terminal-welcome">
-          <pre class="term-banner-art" id="term-banner-art" aria-hidden="true"></pre>
-          <span class="sr-only">TurboRx interactive terminal</span>
-          <div class="term-banner-desc">The whole portfolio, as a shell. Type <span class="term-highlight">help</span> for commands. Press <span class="term-highlight">Esc</span> to return to the GUI.</div>
-        </div>
-        <div id="terminal-output"></div>
-        <div class="terminal-input-line" id="terminal-input-line">
-          <span class="term-prompt"><span class="term-prompt-user">turborx</span><span class="term-prompt-at">@</span><span class="term-prompt-host">portfolio</span>:<span class="term-prompt-path">~</span>$</span>
-          <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" aria-label="Terminal command input" placeholder="Type a command, for example help or open 1" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="smooth-transition-overlay" class="smooth-transition-overlay" aria-hidden="true">
-    <div class="smooth-loader-bar"></div>
   </div>
 
   <div class="toast-container" id="toast-container" role="status" aria-live="polite"></div>
