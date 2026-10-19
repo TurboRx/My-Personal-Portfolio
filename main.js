@@ -744,4 +744,15 @@ document.addEventListener('DOMContentLoaded', () => {
       closeMobileMenu();
     }
   });
+
+  /* ------------------------------------------------------------------ */
+  /* Tech logo fallback                                                 */
+  /* ------------------------------------------------------------------ */
+  document.querySelectorAll('img.tech-logo').forEach((img) => {
+    if (img.complete && img.naturalWidth === 0) {
+      img.hidden = true;
+    } else {
+      img.addEventListener('error', () => { img.hidden = true; });
+    }
+  });
 });

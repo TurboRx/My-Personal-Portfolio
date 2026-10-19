@@ -7,7 +7,7 @@
   <meta name="description" content="Personal portfolio, open-source projects, and metrics of TurboRx." />
   <meta name="color-scheme" content="dark light" />
   <meta name="theme-color" content="#0e131c" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://github.com https://raw.githubusercontent.com https://avatars.githubusercontent.com; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'self';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://github.com https://raw.githubusercontent.com https://avatars.githubusercontent.com; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'self';" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
 
   <meta property="og:title" content="TurboRx - Developer Portfolio" />
@@ -21,16 +21,8 @@
 
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffc15e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>" />
 
-  <!-- Apply the saved theme before first paint so light-mode visitors don't see a dark flash. -->
-  <script>
-    (function () {
-      try {
-        var t = localStorage.getItem('theme') || 'system';
-        if (t === 'system') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', t);
-      } catch (e) {}
-    })();
-  </script>
+  <!-- Apply the saved theme before first paint without inline scripts. -->
+  <script src="theme-init.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -172,7 +164,7 @@
       <dl class="rows">
         <div class="row">
           <dt>AI/ML and data</dt>
-          <dd><span class="tech" style="--c:#3776AB"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-python"/></svg>Python</span><span class="tech" style="--c:#EE4C2C"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-pytorch"/></svg>PyTorch</span><span class="tech"><img class="tech-logo" src="https://raw.githubusercontent.com/jax-ml/jax/main/images/jax_logo.svg" alt="" width="31" height="18" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.hidden=true" />JAX</span><span class="tech" style="--c:#4DABCF;--c-lt:#2a85a8"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-numpy"/></svg>NumPy</span><span class="tech" style="--c:#FFD21E;--c-lt:#b58f00"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-huggingface"/></svg>Hugging Face</span></dd>
+          <dd><span class="tech" style="--c:#3776AB"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-python"/></svg>Python</span><span class="tech" style="--c:#EE4C2C"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-pytorch"/></svg>PyTorch</span><span class="tech"><img class="tech-logo" src="https://raw.githubusercontent.com/jax-ml/jax/main/images/jax_logo.svg" alt="" width="31" height="18" loading="lazy" decoding="async" referrerpolicy="no-referrer" />JAX</span><span class="tech" style="--c:#4DABCF;--c-lt:#2a85a8"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-numpy"/></svg>NumPy</span><span class="tech" style="--c:#FFD21E;--c-lt:#b58f00"><svg class="tech-icon" aria-hidden="true" focusable="false"><use href="#i-huggingface"/></svg>Hugging Face</span></dd>
         </div>
         <div class="row">
           <dt>Security and reverse engineering</dt>
