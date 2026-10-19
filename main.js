@@ -20,6 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/'/g, '&#039;');
   };
 
+  const sanitizeURL = (url) => {
+    if (!url || typeof url !== 'string') return '#';
+    const trimmed = url.trim();
+    try {
+      const parsed = new URL(trimmed, window.location.origin);
+      if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+        return parsed.href;
+      }
+    } catch (e) {}
+    return '#';
+  };
+
   const formatRelativeTime = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -324,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (data.html_url) {
       const githubLink = document.getElementById('github-link');
-      if (githubLink) githubLink.href = data.html_url;
+      if (githubLink) githubLink.href = sanitizeURL(data.html_url);
     }
 
     setMetric('metric-repos', data.public_repos || 0);
@@ -443,12 +455,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const langColor = getLanguageColor(repo.language);
     const topicsHtml = (repo.topics || []).slice(0, 3).map(t => `<li>#${escapeHTML(t)}</li>`).join('');
-    const cloneCommand = `git clone ${repo.clone_url || repo.html_url + '.git'}`;
+    const safeHtmlUrl = sanitizeURL(repo.html_url);
+    const safeCloneUrl = sanitizeURL(repo.clone_url || (safeHtmlUrl !== '#' ? safeHtmlUrl + '.git' : ''));
+    const cloneCommand = safeCloneUrl !== '#' ? `git clone ${safeCloneUrl}` : '';
 
     card.innerHTML = `
       <div class="repo-main">
         <h3 class="repo-name">
-          <a href="${escapeHTML(repo.html_url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(repo.name)}</a>
+          <a href="${escapeHTML(safeHtmlUrl)}" target="_blank" rel="noopener noreferrer">${escapeHTML(repo.name)}</a>
           ${repo.fork ? '<span class="fork-tag">fork</span>' : ''}
         </h3>
         <p class="repo-desc">${escapeHTML(repo.description || 'No description provided.')}</p>
@@ -649,7 +663,10 @@ document.addEventListener('DOMContentLoaded', () => {
           items.push({
             title: `Repo: ${repo.name}`,
             desc: repo.description || 'GitHub repository',
-            action: () => window.open(repo.html_url, '_blank', 'noopener,noreferrer')
+            action: () => {
+              const safeUrl = sanitizeURL(repo.html_url);
+              if (safeUrl !== '#') window.open(safeUrl, '_blank', 'noopener,noreferrer');
+            }
           });
         });
     }

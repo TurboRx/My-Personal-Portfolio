@@ -14,14 +14,22 @@ test.describe('Portfolio E2E Tests', () => {
     await expect(page.locator('#theme-dropdown')).toHaveClass(/show/);
   });
 
-  test('should open interactive terminal modal and execute help command', async ({ page }) => {
+  test('should open command palette modal and search', async ({ page }) => {
     await page.goto(`file://${process.cwd()}/index.html`);
-    const termBtn = page.locator('#terminal-trigger');
-    await termBtn.click();
-    await expect(page.locator('#terminal-modal')).toHaveClass(/show/);
-    const termInput = page.locator('#terminal-input');
-    await termInput.fill('help');
-    await termInput.press('Enter');
-    await expect(page.locator('#terminal-output')).toContainText('Available Commands');
+    const cmdBtn = page.locator('#cmd-k-trigger');
+    await cmdBtn.click();
+    await expect(page.locator('#cmd-palette-modal')).toHaveClass(/show/);
+    const cmdInput = page.locator('#cmd-palette-input');
+    await cmdInput.fill('skills');
+    await expect(page.locator('#cmd-palette-results')).not.toBeEmpty();
+  });
+
+  test('should enforce Content-Security-Policy meta tag', async ({ page }) => {
+    await page.goto(`file://${process.cwd()}/index.html`);
+    const cspMeta = page.locator('meta[http-equiv="Content-Security-Policy"]');
+    await expect(cspMeta).toHaveCount(1);
+    const content = await cspMeta.getAttribute('content');
+    expect(content).toContain("default-src 'self'");
+    expect(content).toContain("object-src 'none'");
   });
 });
